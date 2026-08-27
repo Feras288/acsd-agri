@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -31,9 +31,10 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const contentItems = mysqlTable("contentItems", {
   id: int("id").autoincrement().primaryKey(),
-  type: mysqlEnum("type", ["news", "event"]).notNull(),
+  type: mysqlEnum("type", ["news", "event", "achievement"]).notNull(),
   title: varchar("title", { length: 240 }).notNull(),
   summary: text("summary").notNull(),
+  body: text("body"),
   imageUrl: text("imageUrl"),
   status: mysqlEnum("status", ["draft", "published"]).default("published").notNull(),
   publishedAt: timestamp("publishedAt").defaultNow().notNull(),
@@ -75,6 +76,18 @@ export const contactAttachments = mysqlTable("contactAttachments", {
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 
+/** تسجيلات الزوار للفعاليات المنشورة القادمة. */
+export const eventRegistrations = mysqlTable("eventRegistrations", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull().references(() => contentItems.id, { onDelete: "cascade" }),
+  attendeeName: varchar("attendeeName", { length: 160 }).notNull(),
+  attendeeEmail: varchar("attendeeEmail", { length: 320 }).notNull(),
+  attendeePhone: varchar("attendeePhone", { length: 48 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({
+  oneRegistrationPerEmail: uniqueIndex("event_registration_unique").on(table.eventId, table.attendeeEmail),
+}));
+
 export type ContentItem = typeof contentItems.$inferSelect;
 export type InsertContentItem = typeof contentItems.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -83,3 +96,5 @@ export type ContactReply = typeof contactReplies.$inferSelect;
 export type InsertContactReply = typeof contactReplies.$inferInsert;
 export type ContactAttachment = typeof contactAttachments.$inferSelect;
 export type InsertContactAttachment = typeof contactAttachments.$inferInsert;
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;

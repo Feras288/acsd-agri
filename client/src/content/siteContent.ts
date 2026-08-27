@@ -80,6 +80,7 @@ export const navigationItems = [
   { label: "عن الجمعية", href: "#عن-الجمعية" },
   { label: "أهدافنا", href: "#أهدافنا" },
   { label: "أنشطتنا", href: "#أنشطتنا" },
+  { label: "إنجازاتنا", href: "#الإنجازات" },
   { label: "أخبارنا", href: "#الأخبار" },
   { label: "تواصل معنا", href: "#تواصل" },
 ];

@@ -2,13 +2,14 @@
  * توجه «الأثر الأخضر»: موجز حيّ للأخبار والفعاليات مع مسار زمني هادئ وواضح.
  */
 import { trpc } from "@/lib/trpc";
-import { CalendarDays, MapPin, Newspaper, Sprout } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin, Newspaper, Sprout } from "lucide-react";
 
 type ContentItem = {
   id: number;
-  type: "news" | "event";
+  type: "news" | "event" | "achievement";
   title: string;
   summary: string;
+  body: string | null;
   imageUrl: string | null;
   publishedAt: Date;
   eventStartsAt: Date | null;
@@ -71,11 +72,12 @@ export default function LatestUpdates() {
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {isLoading ? Array.from({ length: 3 }).map((_, index) => <UpdateSkeleton key={index} />) : latestNews.length > 0 ? latestNews.map(item => (
                 <article key={item.id} className="group overflow-hidden rounded-bl-[2.2rem] rounded-tr-[2.2rem] border border-[#e5ddc4] bg-white shadow-[0_10px_28px_rgba(22,91,42,0.06)] transition-transform duration-200 hover:-translate-y-1">
-                  {item.imageUrl ? <img src={item.imageUrl} alt="" className="warm-documentary h-28 w-full object-cover" /> : <div className="h-2 bg-[#dba83c]" />}
+                  {item.imageUrl ? <div className="flex h-40 items-center justify-center bg-[#edf2e9] p-2"><img src={item.imageUrl} alt="" className="warm-documentary h-full w-full object-contain" /></div> : <div className="h-2 bg-[#dba83c]" />}
                   <div className="p-5">
                     <time className="text-xs font-bold text-[#a56c18]">{formatDate(item.publishedAt)}</time>
                     <h4 className="display-font mt-2 text-base font-bold leading-7 text-[#155029]">{item.title}</h4>
                     <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#58735f]">{item.summary}</p>
+                    <a href={`/news/${item.id}`} className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#165B2A] transition-colors hover:text-[#a56c18]">قراءة الخبر <ArrowLeft className="h-3.5 w-3.5" /></a>
                   </div>
                 </article>
               )) : <div className="sm:col-span-2 xl:col-span-3"><EmptyUpdates type="news" /></div>}

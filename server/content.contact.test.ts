@@ -11,6 +11,10 @@ const dbMocks = vi.hoisted(() => ({
   listContactAttachments: vi.fn(async () => []),
   listContactReplies: vi.fn(async () => []),
   listPublishedContent: vi.fn(async () => []),
+  getPublishedContentById: vi.fn(),
+  getPublishedEventById: vi.fn(),
+  createEventRegistration: vi.fn(async () => 51),
+  listEventRegistrations: vi.fn(async () => []),
   markContactMessageRead: vi.fn(async () => undefined),
   markContactMessageReplied: vi.fn(async () => undefined),
   deleteContentItem: vi.fn(async () => undefined),
@@ -22,11 +26,13 @@ const emailMocks = vi.hoisted(() => ({
   sendContactReply: vi.fn(async () => undefined),
 }));
 
-vi.mock("./db", () => dbMocks);
-vi.mock("./email", () => emailMocks);
-vi.mock("./storage", () => ({
+const storageMocks = vi.hoisted(() => ({
   storagePut: vi.fn(async () => ({ key: "contact-messages/42/verification.pdf", url: "/manus-storage/contact-messages/42/verification.pdf" })),
 }));
+
+vi.mock("./db", () => dbMocks);
+vi.mock("./email", () => emailMocks);
+vi.mock("./storage", () => storageMocks);
 
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
@@ -70,6 +76,98 @@ describe("content and contact procedures", () => {
 
     expect(result).toEqual({ id: 31 });
     expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ type: "event", status: "published" }));
+  });
+
+  it("allows an administrator to create a published achievement", async () => {
+    const caller = appRouter.createCaller(administratorContext);
+    const result = await caller.content.create({
+      type: "achievement",
+      title: "محطة أثر معتمدة",
+      summary: "يوثّق هذا الإنجاز المعتمد أثر مبادرة الجمعية بعد اكتمال مراجعتها الداخلية.",
+      imageUrl: "",
+      status: "published",
+      eventStartsAt: null,
+      eventLocation: "",
+    });
+
+    expect(result).toEqual({ id: 31 });
+    expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ type: "achievement", status: "published" }));
+  });
+
+  it("allows an administrator to upload a validated content image", async () => {
+    const caller = appRouter.createCaller(administratorContext);
+    const result = await caller.content.uploadImage({
+      name: "field-photo.png",
+      type: "image/png",
+      size: 8,
+      base64: "iVBORw0KGgo=",
+    });
+
+    expect(result).toEqual({ url: "/manus-storage/contact-messages/42/verification.pdf", fileName: "field-photo.png" });
+    expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^content-images\/.+-field-photo\.png$/), expect.any(Buffer), "image/png");
+  });
+
+  it("accepts a stored image path when publishing content", async () => {
+    const caller = appRouter.createCaller(administratorContext);
+    const result = await caller.content.create({
+      type: "news",
+      title: "خبر مصور من لوحة الجمعية",
+      summary: "يختبر هذا الخبر حفظ مسار صورة مرفوعة من لوحة الإدارة ضمن المحتوى المنشور.",
+      imageUrl: "/manus-storage/content-images/field-photo.png",
+      status: "published",
+      eventStartsAt: null,
+      eventLocation: "",
+    });
+
+    expect(result).toEqual({ id: 31 });
+    expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: "/manus-storage/content-images/field-photo.png" }));
+  });
+
+  it("returns a published news item with its full body for the public detail page", async () => {
+    dbMocks.getPublishedContentById.mockResolvedValue({
+      id: 12,
+      type: "news",
+      title: "خبر الجمعية التفصيلي",
+      summary: "ملخص موجز للخبر المنشور في واجهة الجمعية.",
+      body: "الفقرة الأولى من نص الخبر الكامل.\n\nالفقرة الثانية من نص الخبر الكامل.",
+      imageUrl: "/manus-storage/content-images/news.jpg",
+      status: "published",
+      publishedAt: new Date(),
+      eventStartsAt: null,
+      eventLocation: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    const caller = appRouter.createCaller(publicContext);
+
+    const result = await caller.content.publicNewsById({ id: 12 });
+
+    expect(result).toMatchObject({ id: 12, body: expect.stringContaining("الفقرة الأولى") });
+    expect(dbMocks.getPublishedContentById).toHaveBeenCalledWith(12);
+  });
+
+  it("registers a visitor for a published upcoming event", async () => {
+    dbMocks.getPublishedEventById.mockResolvedValue({
+      id: 44,
+      type: "event",
+      eventStartsAt: new Date(Date.now() + 86_400_000),
+    });
+    const caller = appRouter.createCaller(publicContext);
+
+    const result = await caller.events.register({
+      eventId: 44,
+      attendeeName: "مستفيد الجمعية",
+      attendeeEmail: "visitor@example.com",
+      attendeePhone: "0500000000",
+    });
+
+    expect(result).toEqual({ success: true, id: 51 });
+    expect(dbMocks.createEventRegistration).toHaveBeenCalledWith({
+      eventId: 44,
+      attendeeName: "مستفيد الجمعية",
+      attendeeEmail: "visitor@example.com",
+      attendeePhone: "0500000000",
+    });
   });
 
   it("stores an incoming contact message and sends a notification", async () => {

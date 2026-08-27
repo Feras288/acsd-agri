@@ -5,10 +5,12 @@ import {
   contactReplies,
   contactMessages,
   contentItems,
+  eventRegistrations,
   InsertContactMessage,
   InsertContactAttachment,
   InsertContactReply,
   InsertContentItem,
+  InsertEventRegistration,
   InsertUser,
   users,
 } from "../drizzle/schema";
@@ -116,6 +118,23 @@ export async function listAllContent() {
   return db.select().from(contentItems).orderBy(desc(contentItems.updatedAt));
 }
 
+export async function getPublishedContentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select()
+    .from(contentItems)
+    .where(eq(contentItems.id, id))
+    .limit(1);
+  const item = result[0];
+  return item?.status === "published" ? item : undefined;
+}
+
+export async function getPublishedEventById(id: number) {
+  const item = await getPublishedContentById(id);
+  return item?.type === "event" ? item : undefined;
+}
+
 export async function createContentItem(item: InsertContentItem) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
@@ -133,6 +152,19 @@ export async function deleteContentItem(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   await db.delete(contentItems).where(eq(contentItems.id, id));
+}
+
+export async function createEventRegistration(registration: InsertEventRegistration) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(eventRegistrations).values(registration);
+  return Number(result[0].insertId);
+}
+
+export async function listEventRegistrations() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(eventRegistrations).orderBy(desc(eventRegistrations.createdAt));
 }
 
 export async function createContactMessage(message: InsertContactMessage) {

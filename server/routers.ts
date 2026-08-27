@@ -8,11 +8,17 @@ import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { sendContactNotification, sendContactReply } from "./email";
 import { storagePut } from "./storage";
 
+const contentImageUrl = z.union([
+  z.string().url(),
+  z.string().regex(/^\/manus-storage\/[A-Za-z0-9._/-]+$/, "Invalid stored image path"),
+]);
+
 const contentInput = z.object({
-  type: z.enum(["news", "event"]),
+  type: z.enum(["news", "event", "achievement"]),
   title: z.string().trim().min(5).max(240),
   summary: z.string().trim().min(15).max(3000),
-  imageUrl: z.string().url().optional().or(z.literal("")),
+  body: z.string().trim().max(15_000).optional().or(z.literal("")),
+  imageUrl: contentImageUrl.optional().or(z.literal("")),
   status: z.enum(["draft", "published"]),
   eventStartsAt: z.number().int().positive().optional().nullable(),
   eventLocation: z.string().trim().max(240).optional().or(z.literal("")),
@@ -20,6 +26,7 @@ const contentInput = z.object({
 
 const MAX_ATTACHMENT_COUNT = 3;
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const MAX_CONTENT_IMAGE_SIZE = 5 * 1024 * 1024;
 const allowedAttachmentTypes = [
   "application/pdf",
   "image/jpeg",
@@ -37,8 +44,22 @@ const attachmentInput = z.object({
   base64: z.string().min(4).max(7_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
 });
 
+const allowedContentImageTypes = ["image/jpeg", "image/png", "image/webp"] as const;
+const contentImageInput = z.object({
+  name: z.string().trim().min(1).max(255),
+  type: z.enum(allowedContentImageTypes),
+  size: z.number().int().positive().max(MAX_CONTENT_IMAGE_SIZE),
+  base64: z.string().min(4).max(7_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
+});
+
 const toSafeFileName = (fileName: string) =>
   fileName.replace(/[^A-Za-z0-9._-]/g, "_").replace(/_+/g, "_").slice(0, 180);
+
+const hasMatchingImageSignature = (file: Buffer, mimeType: (typeof allowedContentImageTypes)[number]) => {
+  if (mimeType === "image/jpeg") return file.length >= 3 && file[0] === 0xff && file[1] === 0xd8 && file[2] === 0xff;
+  if (mimeType === "image/png") return file.length >= 8 && file.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  return file.length >= 12 && file.subarray(0, 4).toString("ascii") === "RIFF" && file.subarray(8, 12).toString("ascii") === "WEBP";
+};
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -55,11 +76,26 @@ export const appRouter = router({
   }),
   content: router({
     publicList: publicProcedure.query(() => db.listPublishedContent()),
+    publicNewsById: publicProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
+      const item = await db.getPublishedContentById(input.id);
+      if (!item || item.type !== "news") throw new TRPCError({ code: "NOT_FOUND", message: "News item not found" });
+      return item;
+    }),
     adminList: adminProcedure.query(() => db.listAllContent()),
+    uploadImage: adminProcedure.input(contentImageInput).mutation(async ({ input }) => {
+      const imageBuffer = Buffer.from(input.base64, "base64");
+      if (imageBuffer.length !== input.size || imageBuffer.length > MAX_CONTENT_IMAGE_SIZE || !hasMatchingImageSignature(imageBuffer, input.type)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid content image" });
+      }
+      const fileName = toSafeFileName(input.name);
+      const stored = await storagePut(`content-images/${crypto.randomUUID()}-${fileName}`, imageBuffer, input.type);
+      return { url: stored.url, fileName } as const;
+    }),
     create: adminProcedure.input(contentInput).mutation(async ({ input }) => {
       return {
         id: await db.createContentItem({
           ...input,
+          body: input.body || null,
           imageUrl: input.imageUrl || null,
           eventLocation: input.eventLocation || null,
           eventStartsAt: input.eventStartsAt ? new Date(input.eventStartsAt) : null,
@@ -70,6 +106,7 @@ export const appRouter = router({
       const { id, ...item } = input;
       await db.updateContentItem(id, {
         ...item,
+        body: item.body || null,
         imageUrl: item.imageUrl || null,
         eventLocation: item.eventLocation || null,
         eventStartsAt: item.eventStartsAt ? new Date(item.eventStartsAt) : null,
@@ -80,6 +117,34 @@ export const appRouter = router({
       await db.deleteContentItem(input.id);
       return { success: true } as const;
     }),
+  }),
+  events: router({
+    register: publicProcedure.input(z.object({
+      eventId: z.number().int().positive(),
+      attendeeName: z.string().trim().min(2).max(160),
+      attendeeEmail: z.string().trim().email().max(320),
+      attendeePhone: z.string().trim().max(48).optional().or(z.literal("")),
+    })).mutation(async ({ input }) => {
+      const event = await db.getPublishedEventById(input.eventId);
+      if (!event?.eventStartsAt || event.eventStartsAt.getTime() <= Date.now()) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Event registration is unavailable" });
+      }
+      try {
+        const id = await db.createEventRegistration({
+          eventId: input.eventId,
+          attendeeName: input.attendeeName,
+          attendeeEmail: input.attendeeEmail,
+          attendeePhone: input.attendeePhone || null,
+        });
+        return { success: true, id } as const;
+      } catch (error) {
+        if ((error as { code?: string }).code === "ER_DUP_ENTRY") {
+          throw new TRPCError({ code: "CONFLICT", message: "Already registered for this event" });
+        }
+        throw error;
+      }
+    }),
+    adminRegistrations: adminProcedure.query(() => db.listEventRegistrations()),
   }),
   contact: router({
     submit: publicProcedure.input(z.object({
