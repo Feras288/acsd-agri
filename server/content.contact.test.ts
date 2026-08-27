@@ -108,6 +108,35 @@ describe("content and contact procedures", () => {
     expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^content-images\/.+-field-photo\.png$/), expect.any(Buffer), "image/png");
   });
 
+  it("allows an administrator to upload a validated governance document", async () => {
+    const caller = appRouter.createCaller(administratorContext);
+    const result = await caller.content.uploadDocument({
+      name: "governance-report.pdf",
+      type: "application/pdf",
+      size: 5,
+      base64: "JVBERi0=",
+    });
+
+    expect(result).toEqual({ url: "/manus-storage/contact-messages/42/verification.pdf", fileName: "governance-report.pdf" });
+    expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^governance-documents\/.+-governance-report\.pdf$/), expect.any(Buffer), "application/pdf");
+  });
+
+  it("allows an administrator to publish a linked governance document", async () => {
+    const caller = appRouter.createCaller(administratorContext);
+    const result = await caller.content.create({
+      type: "document",
+      title: "تقرير الحوكمة السنوي",
+      summary: "وثيقة معتمدة تشرح إطار الحوكمة ومسار الإفصاح المؤسسي للجمعية.",
+      imageUrl: "/manus-storage/governance-documents/governance-report.pdf",
+      status: "published",
+      eventStartsAt: null,
+      eventLocation: "",
+    });
+
+    expect(result).toEqual({ id: 31 });
+    expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ type: "document" }));
+  });
+
   it("accepts a stored image path when publishing content", async () => {
     const caller = appRouter.createCaller(administratorContext);
     const result = await caller.content.create({

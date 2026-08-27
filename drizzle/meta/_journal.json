@@ -43,6 +43,13 @@
       "when": 1787855713829,
       "tag": "0005_flat_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787864851715,
+      "tag": "0006_funny_omega_flight",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,7 @@ const contentImageUrl = z.union([
 ]);
 
 const contentInput = z.object({
-  type: z.enum(["news", "event", "achievement"]),
+  type: z.enum(["news", "event", "achievement", "document"]),
   title: z.string().trim().min(5).max(240),
   summary: z.string().trim().min(15).max(3000),
   body: z.string().trim().max(15_000).optional().or(z.literal("")),
@@ -45,11 +45,25 @@ const attachmentInput = z.object({
 });
 
 const allowedContentImageTypes = ["image/jpeg", "image/png", "image/webp"] as const;
+const allowedDocumentTypes = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+] as const;
+const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
 const contentImageInput = z.object({
   name: z.string().trim().min(1).max(255),
   type: z.enum(allowedContentImageTypes),
   size: z.number().int().positive().max(MAX_CONTENT_IMAGE_SIZE),
   base64: z.string().min(4).max(7_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
+});
+const documentFileInput = z.object({
+  name: z.string().trim().min(1).max(255),
+  type: z.enum(allowedDocumentTypes),
+  size: z.number().int().positive().max(MAX_DOCUMENT_SIZE),
+  base64: z.string().min(4).max(14_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
 });
 
 const toSafeFileName = (fileName: string) =>
@@ -59,6 +73,12 @@ const hasMatchingImageSignature = (file: Buffer, mimeType: (typeof allowedConten
   if (mimeType === "image/jpeg") return file.length >= 3 && file[0] === 0xff && file[1] === 0xd8 && file[2] === 0xff;
   if (mimeType === "image/png") return file.length >= 8 && file.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
   return file.length >= 12 && file.subarray(0, 4).toString("ascii") === "RIFF" && file.subarray(8, 12).toString("ascii") === "WEBP";
+};
+
+const hasMatchingDocumentSignature = (file: Buffer, mimeType: (typeof allowedDocumentTypes)[number]) => {
+  if (mimeType === "application/pdf") return file.length >= 5 && file.subarray(0, 5).toString("ascii") === "%PDF-";
+  if (mimeType === "application/msword") return file.length >= 8 && file.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]));
+  return file.length >= 4 && file.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
 };
 
 export const appRouter = router({
@@ -89,6 +109,15 @@ export const appRouter = router({
       }
       const fileName = toSafeFileName(input.name);
       const stored = await storagePut(`content-images/${crypto.randomUUID()}-${fileName}`, imageBuffer, input.type);
+      return { url: stored.url, fileName } as const;
+    }),
+    uploadDocument: adminProcedure.input(documentFileInput).mutation(async ({ input }) => {
+      const documentBuffer = Buffer.from(input.base64, "base64");
+      if (documentBuffer.length !== input.size || documentBuffer.length > MAX_DOCUMENT_SIZE || !hasMatchingDocumentSignature(documentBuffer, input.type)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid document file" });
+      }
+      const fileName = toSafeFileName(input.name);
+      const stored = await storagePut(`governance-documents/${crypto.randomUUID()}-${fileName}`, documentBuffer, input.type);
       return { url: stored.url, fileName } as const;
     }),
     create: adminProcedure.input(contentInput).mutation(async ({ input }) => {

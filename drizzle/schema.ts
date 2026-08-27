@@ -31,7 +31,7 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const contentItems = mysqlTable("contentItems", {
   id: int("id").autoincrement().primaryKey(),
-  type: mysqlEnum("type", ["news", "event", "achievement"]).notNull(),
+  type: mysqlEnum("type", ["news", "event", "achievement", "document"]).notNull(),
   title: varchar("title", { length: 240 }).notNull(),
   summary: text("summary").notNull(),
   body: text("body"),
