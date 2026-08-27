@@ -3,13 +3,17 @@
  * الأولوية: وضوح المعلومات، الدفء المؤسسي، وإبراز الشعار الرسمي بوصفه ختم ثقة.
  */
 import { Button } from "@/components/ui/button";
+import ContactForm from "@/components/ContactForm";
+import LatestUpdates from "@/components/LatestUpdates";
 import { activities, focusAreas, navigationItems, objectives } from "@/content/siteContent";
 import {
   ArrowLeft,
   ChevronLeft,
+  Ghost,
+  Instagram,
   Menu,
-  MessageCircle,
   Sprout,
+  Twitter,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -58,7 +62,7 @@ export default function Home() {
           </a>
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="التنقل الرئيسي">
-            {navigationItems.slice(0, 4).map((item) => (
+            {navigationItems.slice(0, 5).map((item) => (
               <a key={item.href} href={item.href} className="text-sm font-bold text-[#315441] transition-colors hover:text-[#a76e14]">
                 {item.label}
               </a>
@@ -267,31 +271,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="تواصل" className="relative bg-[#155029] py-18 text-white lg:py-24">
-          <FieldDivider tone="green" />
-          <div className="container mt-8 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-            <div>
-              <p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">لنبنِ الأثر معًا</p>
-              <h2 className="display-font mt-4 max-w-2xl text-3xl font-extrabold leading-[1.55] sm:text-4xl">هل لديك مبادرة أو فكرة تخدم التنمية الزراعية؟</h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[#e7f0df]/85">يسرنا التعرف إلى فرص التعاون والمبادرات التي تعزز المعرفة والإنتاج والاستدامة في القطاع الزراعي.</p>
-            </div>
-            <div className="flex flex-col items-start rounded-bl-[2.75rem] rounded-tr-[2.75rem] border border-[#e6bd67]/40 bg-white/5 p-7 backdrop-blur-sm sm:p-8">
-              <div className="grid h-12 w-12 place-items-center rounded-full bg-[#e6bd67] text-[#155029]"><MessageCircle className="h-5 w-5" /></div>
-              <h3 className="display-font mt-4 text-xl font-bold">نتطلع إلى تواصلكم</h3>
-              <p className="mt-2 text-sm leading-7 text-white/75">شاركنا رسالتك، وسيتواصل فريق الجمعية معك عبر قنواتها الرسمية.</p>
-              <a href="#الرئيسية" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f2cd78] transition-colors hover:text-white">
-                العودة إلى أعلى الصفحة
-                <ArrowLeft className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </section>
+        <LatestUpdates />
+        <ContactForm />
       </main>
 
       <footer className="bg-[#103a22] py-6 text-white/65">
-        <div className="container flex flex-col gap-3 text-center text-xs sm:flex-row sm:items-center sm:justify-between sm:text-right">
-          <span>الجمعية التعاونية الزراعية للتطوير والاستدامة</span>
-          <span className="font-medium text-[#e6bd67]">من الأرض نبدأ، وبالمعرفة نرفع أثرها.</span>
+        <div className="container flex flex-col gap-5 text-center text-xs sm:flex-row sm:items-center sm:justify-between sm:text-right">
+          <div className="flex flex-col gap-1"><span>الجمعية التعاونية الزراعية للتطوير والاستدامة</span><span className="font-medium text-[#e6bd67]">من الأرض نبدأ، وبالمعرفة نرفع أثرها.</span><a href="/admin" className="mt-1 w-fit self-center text-[0.68rem] font-bold text-white/55 transition-colors hover:text-[#f2cd78] sm:self-start">دخول إدارة الجمعية</a></div>
+          <div className="flex items-center justify-center gap-2 sm:justify-end">
+            <span className="ml-1 text-xs font-bold text-white/75">تابعونا</span>
+            <a href="https://x.com/acsd2027?s=11" target="_blank" rel="noreferrer" aria-label="حساب الجمعية على X" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e6bd67] hover:bg-[#e6bd67] hover:text-[#155029]"><Twitter className="h-4 w-4" /></a>
+            <a href="https://www.instagram.com/acsd2027/" target="_blank" rel="noreferrer" aria-label="حساب الجمعية على إنستغرام" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e6bd67] hover:bg-[#e6bd67] hover:text-[#155029]"><Instagram className="h-4 w-4" /></a>
+            <a href="https://www.snapchat.com/@acsd2027?invite_id=ctp_OFma&locale=ar_SA%40calendar%3Dgregorian&share_id=ujdQkug2RiGTHVnW8Sc_1A&sid=a5931264988c415e8e3463a334230b6d" target="_blank" rel="noreferrer" aria-label="حساب الجمعية على سناب شات" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#e6bd67] hover:bg-[#e6bd67] hover:text-[#155029]"><Ghost className="h-4 w-4" /></a>
+          </div>
         </div>
       </footer>
     </div>
