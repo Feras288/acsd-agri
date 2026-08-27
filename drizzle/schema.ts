@@ -63,9 +63,23 @@ export const contactReplies = mysqlTable("contactReplies", {
   sentAt: timestamp("sentAt").defaultNow().notNull(),
 });
 
+/** بيانات المرفقات؛ تُخزّن الملفات في التخزين الآمن ويُحفظ هنا مرجعها فقط. */
+export const contactAttachments = mysqlTable("contactAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull().references(() => contactMessages.id, { onDelete: "cascade" }),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  storageKey: varchar("storageKey", { length: 512 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  mimeType: varchar("mimeType", { length: 160 }).notNull(),
+  fileSize: int("fileSize").notNull(),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+
 export type ContentItem = typeof contentItems.$inferSelect;
 export type InsertContentItem = typeof contentItems.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
 export type ContactReply = typeof contactReplies.$inferSelect;
 export type InsertContactReply = typeof contactReplies.$inferInsert;
+export type ContactAttachment = typeof contactAttachments.$inferSelect;
+export type InsertContactAttachment = typeof contactAttachments.$inferInsert;

@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const dbMocks = vi.hoisted(() => ({
   createContentItem: vi.fn(async () => 31),
   createContactMessage: vi.fn(async () => 42),
+  createContactAttachment: vi.fn(async () => 88),
   createContactReply: vi.fn(async () => 73),
   getContactMessageById: vi.fn(),
   listAllContent: vi.fn(async () => []),
   listContactMessages: vi.fn(async () => []),
+  listContactAttachments: vi.fn(async () => []),
   listContactReplies: vi.fn(async () => []),
   listPublishedContent: vi.fn(async () => []),
   markContactMessageRead: vi.fn(async () => undefined),
@@ -22,6 +24,9 @@ const emailMocks = vi.hoisted(() => ({
 
 vi.mock("./db", () => dbMocks);
 vi.mock("./email", () => emailMocks);
+vi.mock("./storage", () => ({
+  storagePut: vi.fn(async () => ({ key: "contact-messages/42/verification.pdf", url: "/manus-storage/contact-messages/42/verification.pdf" })),
+}));
 
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
@@ -77,9 +82,35 @@ describe("content and contact procedures", () => {
       message: "أرغب في معرفة المزيد عن البرامج التدريبية والمبادرات المتاحة للمزارعين.",
     });
 
-    expect(result).toEqual({ success: true, delivered: true, messageId: 42 });
+    expect(result).toEqual({ success: true, delivered: true, messageId: 42, attachmentCount: 0 });
     expect(dbMocks.createContactMessage).toHaveBeenCalledOnce();
     expect(emailMocks.sendContactNotification).toHaveBeenCalledOnce();
+  });
+
+  it("stores an allowed attachment through secure storage", async () => {
+    const caller = appRouter.createCaller(publicContext);
+    const result = await caller.contact.submit({
+      senderName: "مستفيد تجريبي",
+      senderEmail: "visitor@example.com",
+      phone: "",
+      subject: "إرسال وثيقة للمراجعة",
+      message: "أرفق هذه الوثيقة للاطلاع عليها ضمن طلب التعاون مع الجمعية.",
+      attachments: [{
+        name: "verification.pdf",
+        type: "application/pdf",
+        size: 5,
+        base64: "cHJvb2Y=",
+      }],
+    });
+
+    expect(result).toEqual({ success: true, delivered: true, messageId: 42, attachmentCount: 1 });
+    expect(dbMocks.createContactAttachment).toHaveBeenCalledWith(expect.objectContaining({
+      messageId: 42,
+      fileName: "verification.pdf",
+      fileUrl: "/manus-storage/contact-messages/42/verification.pdf",
+      mimeType: "application/pdf",
+      fileSize: 5,
+    }));
   });
 
   it("rejects contact messages that do not contain enough detail", async () => {

@@ -6,6 +6,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { sendContactNotification, sendContactReply } from "./email";
+import { storagePut } from "./storage";
 
 const contentInput = z.object({
   type: z.enum(["news", "event"]),
@@ -16,6 +17,28 @@ const contentInput = z.object({
   eventStartsAt: z.number().int().positive().optional().nullable(),
   eventLocation: z.string().trim().max(240).optional().or(z.literal("")),
 });
+
+const MAX_ATTACHMENT_COUNT = 3;
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const allowedAttachmentTypes = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+] as const;
+
+const attachmentInput = z.object({
+  name: z.string().trim().min(1).max(255),
+  type: z.enum(allowedAttachmentTypes),
+  size: z.number().int().positive().max(MAX_ATTACHMENT_SIZE),
+  base64: z.string().min(4).max(7_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
+});
+
+const toSafeFileName = (fileName: string) =>
+  fileName.replace(/[^A-Za-z0-9._-]/g, "_").replace(/_+/g, "_").slice(0, 180);
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -65,23 +88,48 @@ export const appRouter = router({
       phone: z.string().trim().max(48).optional().or(z.literal("")),
       subject: z.string().trim().min(3).max(240),
       message: z.string().trim().min(10).max(5000),
+      attachments: z.array(attachmentInput).max(MAX_ATTACHMENT_COUNT).default([]),
     })).mutation(async ({ input }) => {
+      const { attachments, ...contactInput } = input;
       const messageId = await db.createContactMessage({
-        ...input,
-        phone: input.phone || null,
+        ...contactInput,
+        phone: contactInput.phone || null,
       });
+
+      for (const attachment of attachments) {
+        const fileBuffer = Buffer.from(attachment.base64, "base64");
+        if (fileBuffer.length !== attachment.size || fileBuffer.length > MAX_ATTACHMENT_SIZE) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid attachment size" });
+        }
+
+        const fileName = toSafeFileName(attachment.name);
+        const stored = await storagePut(
+          `contact-messages/${messageId}/${crypto.randomUUID()}-${fileName}`,
+          fileBuffer,
+          attachment.type,
+        );
+        await db.createContactAttachment({
+          messageId,
+          fileName,
+          storageKey: stored.key,
+          fileUrl: stored.url,
+          mimeType: attachment.type,
+          fileSize: fileBuffer.length,
+        });
+      }
 
       let delivered = false;
       try {
-        await sendContactNotification(input);
+        await sendContactNotification(contactInput);
         delivered = true;
       } catch (error) {
         console.error("[Contact] Message stored but email notification failed", error);
       }
 
-      return { success: true, delivered, messageId } as const;
+      return { success: true, delivered, messageId, attachmentCount: attachments.length } as const;
     }),
     adminList: adminProcedure.query(() => db.listContactMessages()),
+    adminAttachments: adminProcedure.query(() => db.listContactAttachments()),
     adminReplies: adminProcedure.query(() => db.listContactReplies()),
     markRead: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
       await db.markContactMessageRead(input.id);

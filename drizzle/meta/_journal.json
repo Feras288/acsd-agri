@@ -15,6 +15,13 @@
       "when": 1787843395905,
       "tag": "0001_panoramic_sprite",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787844201816,
+      "tag": "0002_slim_leader",
+      "breakpoints": true
     }
   ]
 }

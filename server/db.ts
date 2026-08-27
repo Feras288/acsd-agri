@@ -1,10 +1,12 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
+  contactAttachments,
   contactReplies,
   contactMessages,
   contentItems,
   InsertContactMessage,
+  InsertContactAttachment,
   InsertContactReply,
   InsertContentItem,
   InsertUser,
@@ -176,4 +178,17 @@ export async function markContactMessageReplied(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   await db.update(contactMessages).set({ status: "replied" }).where(eq(contactMessages.id, id));
+}
+
+export async function createContactAttachment(attachment: InsertContactAttachment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const result = await db.insert(contactAttachments).values(attachment);
+  return Number(result[0].insertId);
+}
+
+export async function listContactAttachments() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contactAttachments).orderBy(desc(contactAttachments.uploadedAt));
 }
