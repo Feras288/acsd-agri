@@ -170,6 +170,23 @@ describe("content and contact procedures", () => {
     });
   });
 
+  it("rejects duplicate registration for the same event and email", async () => {
+    dbMocks.getPublishedEventById.mockResolvedValue({
+      id: 44,
+      type: "event",
+      eventStartsAt: new Date(Date.now() + 86_400_000),
+    });
+    dbMocks.createEventRegistration.mockRejectedValueOnce({ code: "ER_DUP_ENTRY" });
+    const caller = appRouter.createCaller(publicContext);
+
+    await expect(caller.events.register({
+      eventId: 44,
+      attendeeName: "مستفيد الجمعية",
+      attendeeEmail: "visitor@example.com",
+      attendeePhone: "",
+    })).rejects.toMatchObject({ code: "CONFLICT", message: "EMAIL_ALREADY_REGISTERED" });
+  });
+
   it("stores an incoming contact message and sends a notification", async () => {
     const caller = appRouter.createCaller(publicContext);
     const result = await caller.contact.submit({

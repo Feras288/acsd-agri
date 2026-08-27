@@ -138,8 +138,10 @@ export const appRouter = router({
         });
         return { success: true, id } as const;
       } catch (error) {
-        if ((error as { code?: string }).code === "ER_DUP_ENTRY") {
-          throw new TRPCError({ code: "CONFLICT", message: "Already registered for this event" });
+        const databaseCode = (error as { code?: string; cause?: { code?: string } }).code
+          ?? (error as { cause?: { code?: string } }).cause?.code;
+        if (databaseCode === "ER_DUP_ENTRY") {
+          throw new TRPCError({ code: "CONFLICT", message: "EMAIL_ALREADY_REGISTERED" });
         }
         throw error;
       }
