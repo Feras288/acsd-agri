@@ -5,7 +5,7 @@ import * as db from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
-import { sendContactNotification, sendContactReply } from "./email";
+import { sendContactNotification, sendContactReply, sendEventRegistrationConfirmation } from "./email";
 import { storagePut } from "./storage";
 
 const contentImageUrl = z.union([
@@ -136,7 +136,20 @@ export const appRouter = router({
           attendeeEmail: input.attendeeEmail,
           attendeePhone: input.attendeePhone || null,
         });
-        return { success: true, id } as const;
+        let confirmationDelivered = false;
+        try {
+          await sendEventRegistrationConfirmation({
+            recipientName: input.attendeeName,
+            recipientEmail: input.attendeeEmail,
+            eventTitle: event.title,
+            eventStartsAt: event.eventStartsAt,
+            eventLocation: event.eventLocation,
+          });
+          confirmationDelivered = true;
+        } catch (error) {
+          console.error("[Events] Registration stored but confirmation email failed", error);
+        }
+        return { success: true, id, confirmationDelivered } as const;
       } catch (error) {
         const databaseCode = (error as { code?: string; cause?: { code?: string } }).code
           ?? (error as { cause?: { code?: string } }).cause?.code;

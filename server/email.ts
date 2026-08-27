@@ -55,6 +55,49 @@ type ReplyInput = {
   body: string;
 };
 
+type EventConfirmationInput = {
+  recipientName: string;
+  recipientEmail: string;
+  eventTitle: string;
+  eventStartsAt: Date;
+  eventLocation?: string | null;
+};
+
+const formatEventDate = (date: Date) => new Intl.DateTimeFormat("ar-SA", {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "Asia/Riyadh",
+}).format(date);
+
+/** يرسل رسالة تأكيد للمسجل بعد قبول تسجيله في فعالية قادمة. */
+export async function sendEventRegistrationConfirmation(registration: EventConfirmationInput) {
+  const transporter = createTransporter();
+  const from = process.env.SMTP_FROM || recipientAddress;
+  const locationLine = registration.eventLocation ? `المكان: ${registration.eventLocation}` : "المكان: سيُعلن عنه فريق الجمعية عند اكتمال الترتيبات.";
+
+  await transporter.sendMail({
+    from,
+    to: registration.recipientEmail,
+    subject: `تأكيد التسجيل في فعالية: ${registration.eventTitle}`,
+    text: `الأستاذ/ة ${registration.recipientName}،
+
+نشكر اهتمامكم بفعاليات الجمعية التعاونية الزراعية للتطوير والاستدامة. نؤكد استلام تسجيلكم في الفعالية التالية:
+
+الفعالية: ${registration.eventTitle}
+الموعد: ${formatEventDate(registration.eventStartsAt)}
+${locationLine}
+
+سيواصل فريق الجمعية التواصل معكم عند وجود أي تحديثات مهمة.
+
+مع التحية،
+الجمعية التعاونية الزراعية للتطوير والاستدامة`,
+  });
+}
+
 export async function sendContactReply(reply: ReplyInput) {
   const transporter = createTransporter();
   const from = process.env.SMTP_FROM || recipientAddress;

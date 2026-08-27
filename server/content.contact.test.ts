@@ -24,6 +24,7 @@ const dbMocks = vi.hoisted(() => ({
 const emailMocks = vi.hoisted(() => ({
   sendContactNotification: vi.fn(async () => undefined),
   sendContactReply: vi.fn(async () => undefined),
+  sendEventRegistrationConfirmation: vi.fn(async () => undefined),
 }));
 
 const storageMocks = vi.hoisted(() => ({
@@ -150,7 +151,9 @@ describe("content and contact procedures", () => {
     dbMocks.getPublishedEventById.mockResolvedValue({
       id: 44,
       type: "event",
+      title: "ورشة الحوكمة الزراعية",
       eventStartsAt: new Date(Date.now() + 86_400_000),
+      eventLocation: "مقر الجمعية",
     });
     const caller = appRouter.createCaller(publicContext);
 
@@ -161,13 +164,19 @@ describe("content and contact procedures", () => {
       attendeePhone: "0500000000",
     });
 
-    expect(result).toEqual({ success: true, id: 51 });
+    expect(result).toEqual({ success: true, id: 51, confirmationDelivered: true });
     expect(dbMocks.createEventRegistration).toHaveBeenCalledWith({
       eventId: 44,
       attendeeName: "مستفيد الجمعية",
       attendeeEmail: "visitor@example.com",
       attendeePhone: "0500000000",
     });
+    expect(emailMocks.sendEventRegistrationConfirmation).toHaveBeenCalledWith(expect.objectContaining({
+      recipientName: "مستفيد الجمعية",
+      recipientEmail: "visitor@example.com",
+      eventTitle: "ورشة الحوكمة الزراعية",
+      eventLocation: "مقر الجمعية",
+    }));
   });
 
   it("rejects duplicate registration for the same event and email", async () => {
