@@ -4,7 +4,6 @@
  */
 import { Button } from "@/components/ui/button";
 import Achievements from "@/components/Achievements";
-import ContactForm from "@/components/ContactForm";
 import LatestUpdates from "@/components/LatestUpdates";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -50,7 +49,7 @@ export default function Home() {
               </div>
 
               <div className="reveal-up-delay mt-8 flex flex-wrap items-center gap-3">
-                <a href="#عن-الجمعية">
+                <a href="/about">
                   <Button className="h-12 rounded-full bg-[#165B2A] px-6 font-bold text-white shadow-[0_12px_25px_rgba(22,91,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#10461f] active:scale-[0.97]">
                     اكتشف رسالتنا
                     <ChevronLeft className="mr-1 h-4 w-4" />
@@ -84,36 +83,6 @@ export default function Home() {
                 <span className="mt-1 block text-xs text-white/80">ونقودها بشراكة تؤمن بالمستقبل.</span>
               </div>
               <div className="hero-field-lines drift-lines" />
-            </div>
-          </div>
-        </section>
-
-        <section id="عن-الجمعية" className="relative bg-[#165B2A] pb-20 pt-14 text-white lg:pb-24">
-          <FieldDivider tone="green" />
-          <div className="container mt-8 grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
-            <div className="relative min-h-[16rem]">
-              <div className="absolute right-[10%] top-2 h-52 w-52 rounded-full border border-[#e6bd67]/45" />
-              <div className="focus-orb absolute right-[16%] top-10 grid h-40 w-40 place-items-center rounded-full bg-[#fbf8ed]">
-                <img src={logoUrl} alt="شعار الجمعية التعاونية الزراعية للتطوير والاستدامة" className="h-[8.4rem] w-[8.4rem] rounded-full object-cover" />
-              </div>
-              <span className="absolute bottom-0 right-0 display-font text-7xl font-extrabold text-[#e6bd67]/25">ACSD</span>
-            </div>
-            <div className="max-w-3xl">
-              <p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">عن الجمعية</p>
-              <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.55] sm:text-4xl">نبني حلولًا زراعية تنمو مع الناس وتدوم للأرض.</h2>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-[#e7f0df]/90 sm:text-lg">
-                نعمل على ترسيخ نموذج تعاوني يقرّب الإمكانات من احتياج الميدان؛ فيجمع المزارعين والخبرات والمبادرات حول هدف واحد: تنمية زراعية متوازنة ومسؤولة.
-              </p>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                <div className="border-r border-[#e6bd67]/60 pr-4">
-                  <h3 className="display-font text-lg font-bold text-[#f2cd78]">رؤيتنا</h3>
-                  <p className="mt-2 text-sm leading-7 text-white/80">مجتمع زراعي متعاون يزدهر بالمعرفة، ويحافظ على موارده، ويصنع أثره بثقة.</p>
-                </div>
-                <div className="border-r border-[#e6bd67]/60 pr-4">
-                  <h3 className="display-font text-lg font-bold text-[#f2cd78]">رسالتنا</h3>
-                  <p className="mt-2 text-sm leading-7 text-white/80">تمكين التنمية الزراعية عبر مبادرات عملية وشراكات مستدامة ذات أثر ملموس.</p>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -209,7 +178,7 @@ export default function Home() {
         <Achievements />
         <UpcomingEvents />
         <LatestUpdates />
-        <ContactForm />
+        <section id="تواصل" className="bg-[#123f25] py-16 text-white lg:py-20"><div className="container flex flex-col gap-7 md:flex-row md:items-center md:justify-between"><div><p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">مساحة تعاون مباشرة</p><h2 className="display-font mt-4 text-2xl font-extrabold sm:text-3xl">لنبنِ الأثر معًا، عبر صفحة تواصل مخصصة.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">أرسل استفسارك أو مقترحك أو طلب الشراكة مع المرفقات، وتابع فريق الجمعية الرسالة من لوحة الإدارة.</p></div><a href="/contact" className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#e6bd67] px-6 text-sm font-bold text-[#155029] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f2cd78] active:scale-[0.97]">افتح صفحة اتصل بنا <ArrowLeft className="mr-2 h-4 w-4" /></a></div></section>
       </main>
 
       <SiteFooter />

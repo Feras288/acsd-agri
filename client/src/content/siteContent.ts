@@ -77,10 +77,10 @@ export const focusAreas = [
 
 export const navigationItems = [
   { label: "الرئيسية", href: "#الرئيسية" },
-  { label: "عن الجمعية", href: "#عن-الجمعية" },
+  { label: "عن الجمعية", href: "/about" },
   { label: "أهدافنا", href: "#أهدافنا" },
   { label: "أنشطتنا", href: "#أنشطتنا" },
   { label: "إنجازاتنا", href: "#الإنجازات" },
   { label: "أخبارنا", href: "#الأخبار" },
-  { label: "تواصل معنا", href: "#تواصل" },
+  { label: "تواصل معنا", href: "/contact" },
 ];
