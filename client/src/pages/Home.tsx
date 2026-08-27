@@ -5,7 +5,7 @@
 import { Button } from "@/components/ui/button";
 import ContactForm from "@/components/ContactForm";
 import LatestUpdates from "@/components/LatestUpdates";
-import { activities, focusAreas, navigationItems, objectives } from "@/content/siteContent";
+import { activities, focusAreas, governanceAreas, navigationItems, objectives } from "@/content/siteContent";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -62,7 +62,7 @@ export default function Home() {
           </a>
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="التنقل الرئيسي">
-            {navigationItems.slice(0, 5).map((item) => (
+            {navigationItems.slice(0, 6).map((item) => (
               <a key={item.href} href={item.href} className="text-sm font-bold text-[#315441] transition-colors hover:text-[#a76e14]">
                 {item.label}
               </a>
@@ -167,16 +167,16 @@ export default function Home() {
               <p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">عن الجمعية</p>
               <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.55] sm:text-4xl">نبني حلولًا زراعية تنمو مع الناس وتدوم للأرض.</h2>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#e7f0df]/90 sm:text-lg">
-                نعمل على ترسيخ نموذج تعاوني يقرّب الإمكانات من احتياج الميدان؛ فيجمع المزارعين والخبرات والمبادرات حول هدف واحد: تنمية زراعية متوازنة ومسؤولة.
+                جمعية تعاونية سعودية تجمع الأعضاء والمساهمين والخبرات حول تنمية زراعية مستدامة؛ لرفع الكفاءة الإنتاجية وتعظيم القيمة الاقتصادية والاجتماعية للمجتمع المحلي.
               </p>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 <div className="border-r border-[#e6bd67]/60 pr-4">
                   <h3 className="display-font text-lg font-bold text-[#f2cd78]">رؤيتنا</h3>
-                  <p className="mt-2 text-sm leading-7 text-white/80">مجتمع زراعي متعاون يزدهر بالمعرفة، ويحافظ على موارده، ويصنع أثره بثقة.</p>
+                  <p className="mt-2 text-sm leading-7 text-white/80">منظومة زراعية متعاونة تنمو بالمعرفة والابتكار، وتحافظ على الموارد، وتصنع قيمة مستدامة.</p>
                 </div>
                 <div className="border-r border-[#e6bd67]/60 pr-4">
                   <h3 className="display-font text-lg font-bold text-[#f2cd78]">رسالتنا</h3>
-                  <p className="mt-2 text-sm leading-7 text-white/80">تمكين التنمية الزراعية عبر مبادرات عملية وشراكات مستدامة ذات أثر ملموس.</p>
+                  <p className="mt-2 text-sm leading-7 text-white/80">تمكين التنمية الزراعية عبر مبادرات واستثمارات وشراكات عملية ذات أثر اقتصادي واجتماعي وبيئي.</p>
                 </div>
               </div>
             </div>
@@ -188,9 +188,9 @@ export default function Home() {
             <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
               <div>
                 <p className="section-label">وجهة العمل</p>
-                <h2 className="display-font mt-4 max-w-xl text-3xl font-extrabold leading-[1.5] text-[#155029] sm:text-4xl">أهداف تصنع دورة نمو أكثر توازنًا.</h2>
+                <h2 className="display-font mt-4 max-w-xl text-3xl font-extrabold leading-[1.5] text-[#155029] sm:text-4xl">مسارات عملية لتنميةٍ تمتد آثارها.</h2>
               </div>
-              <p className="max-w-xl text-base leading-8 text-[#516f5d]">نوجّه مواردنا نحو الأولويات التي تعزز قدرة القطاع الزراعي على الاستمرار، وتضع التعاون والمعرفة في قلب الإنجاز.</p>
+              <p className="max-w-xl text-base leading-8 text-[#516f5d]">نحوّل احتياجات الأعضاء والميدان إلى مشاريع وخدمات وشراكات تجمع الإنتاج والمعرفة والفرص السوقية في دورة نمو واحدة.</p>
             </div>
             <div className="branch-rule mt-10" />
             <div className="mt-2">
@@ -215,9 +215,9 @@ export default function Home() {
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div>
                 <p className="section-label">مسارات الأثر</p>
-                <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.5] text-[#155029] sm:text-4xl">أنشطة متصلة بالميدان.</h2>
+                <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.5] text-[#155029] sm:text-4xl">برامج تنطلق من احتياج الميدان.</h2>
               </div>
-              <p className="max-w-md text-sm leading-7 text-[#52705b]">من المعرفة العملية إلى حماية الموارد، تتحول الأولويات إلى برامج تفتح مجالًا للتطوير المشترك.</p>
+              <p className="max-w-md text-sm leading-7 text-[#52705b]">من التدريب والإنتاج المحمي إلى المشاريع الحيوانية والموارد، تتحول الأولويات إلى مبادرات قابلة للتنفيذ.</p>
             </div>
 
             <div className="mt-11 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
@@ -256,18 +256,41 @@ export default function Home() {
               <div className="absolute -left-14 -top-14 h-48 w-48 rounded-full border-[22px] border-[#f6d98d]/60" />
               <Sprout className="absolute bottom-7 left-9 h-24 w-24 text-[#155029]/15" strokeWidth={1.1} />
               <div className="relative z-10 max-w-xl">
-                <p className="section-label !text-[#5f4617] before:!bg-[#5f4617]">روح التعاون</p>
-                <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.6] sm:text-4xl">كل مبادرة أقوى حين تنمو ضمن شراكة.</h2>
-                <p className="mt-4 text-base font-medium leading-8 text-[#4f421f]">نؤمن بأن التنمية الزراعية المستدامة ليست مسارًا فرديًا؛ بل حصيلة معرفة تتبادل، وموارد تُدار بمسؤولية، ومجتمع يعمل من أجل قيمة مشتركة.</p>
+                <p className="section-label !text-[#5f4617] before:!bg-[#5f4617]">رؤيتنا للمستقبل</p>
+                <h2 className="display-font mt-4 text-3xl font-extrabold leading-[1.6] sm:text-4xl">الأمن الغذائي يبدأ بقيمةٍ تُبنى معًا.</h2>
+                <p className="mt-4 text-base font-medium leading-8 text-[#4f421f]">نرى أن الزراعة المتقدمة لا تقاس بحجم الإنتاج وحده؛ بل بكفاءة الموارد، والابتكار، والاستثمار المسؤول، والشراكات التي ترفع أثرها على الإنسان والمكان.</p>
               </div>
             </div>
             <div className="px-2 py-4 lg:px-8">
-              <p className="display-font text-xl font-bold leading-9 text-[#155029]">نصنع مساحة للتعاون العملي بين المزارعين والجهات الداعمة والخبرات المتخصصة.</p>
+              <p className="display-font text-xl font-bold leading-9 text-[#155029]">نبني شراكات فاعلة مع القطاعين العام والخاص والجهات التمويلية؛ لفتح فرص تنموية واستثمارية أوسع.</p>
               <div className="mt-6 flex items-center gap-3 text-[#987020]">
                 <span className="h-px w-12 bg-[#c88a19]" />
-                <span className="text-sm font-bold">مساحة تنمو فيها الأفكار إلى أثر</span>
+                <span className="text-sm font-bold">شراكة، ابتكار، واستدامة مالية وإدارية</span>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="الحوكمة" className="relative overflow-hidden bg-[#f4f1e5] py-20 lg:py-28">
+          <div className="container relative z-10">
+            <div className="grid gap-7 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+              <div>
+                <p className="section-label">الحوكمة والشفافية</p>
+                <h2 className="display-font mt-4 max-w-lg text-3xl font-extrabold leading-[1.55] text-[#155029] sm:text-4xl">ثقةٌ تنمو من وضوح القواعد.</h2>
+              </div>
+              <p className="max-w-2xl text-base leading-8 text-[#516f5d]">نعمل على بناء منظومة مؤسسية ترتكز على المشاركة والشفافية والمسؤولية؛ وتحمي مصالح الأعضاء والمساهمين والشركاء، وتدعم قرارات واضحة ومستدامة.</p>
+            </div>
+            <div className="mt-11 grid gap-5 md:grid-cols-3">
+              {governanceAreas.map(({ title, description, Icon }, index) => (
+                <article key={title} className={`relative overflow-hidden rounded-bl-[2rem] rounded-tr-[2rem] border p-6 ${index === 1 ? "border-[#d7b15c] bg-[#165B2A] text-white" : "border-[#ded4b7] bg-white/70 text-[#155029]"}`}>
+                  <span className={`grid h-11 w-11 place-items-center rounded-full ${index === 1 ? "bg-[#e6bd67] text-[#155029]" : "bg-[#e8f0df] text-[#155029]"}`}><Icon className="h-5 w-5" strokeWidth={1.7} /></span>
+                  <h3 className={`display-font mt-6 text-xl font-bold ${index === 1 ? "text-white" : "text-[#155029]"}`}>{title}</h3>
+                  <p className={`mt-3 text-sm leading-7 ${index === 1 ? "text-white/80" : "text-[#58735f]"}`}>{description}</p>
+                  <span className={`mt-6 block h-px w-16 ${index === 1 ? "bg-[#e6bd67]/70" : "bg-[#dba83c]"}`} />
+                </article>
+              ))}
+            </div>
+            <a href="#تواصل" className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#8f651a] transition-colors hover:text-[#155029]">للاستفسار عن وثائق الحوكمة والسياسات <ArrowLeft className="h-4 w-4" /></a>
           </div>
         </section>
 
