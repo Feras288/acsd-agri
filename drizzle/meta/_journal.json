@@ -50,6 +50,13 @@
       "when": 1787864851715,
       "tag": "0006_funny_omega_flight",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787866650272,
+      "tag": "0007_long_living_lightning",
+      "breakpoints": true
     }
   ]
 }

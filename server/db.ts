@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   contactAttachments,
@@ -133,6 +133,19 @@ export async function getPublishedContentById(id: number) {
 export async function getPublishedEventById(id: number) {
   const item = await getPublishedContentById(id);
   return item?.type === "event" ? item : undefined;
+}
+
+export async function getPublishedDocumentById(id: number) {
+  const item = await getPublishedContentById(id);
+  return item?.type === "document" ? item : undefined;
+}
+
+export async function incrementDocumentDownload(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(contentItems).set({ downloadCount: sql`${contentItems.downloadCount} + 1` }).where(eq(contentItems.id, id));
+  const result = await db.select({ downloadCount: contentItems.downloadCount }).from(contentItems).where(eq(contentItems.id, id)).limit(1);
+  return result[0]?.downloadCount ?? 0;
 }
 
 export async function createContentItem(item: InsertContentItem) {

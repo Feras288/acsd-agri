@@ -13,6 +13,8 @@ const dbMocks = vi.hoisted(() => ({
   listPublishedContent: vi.fn(async () => []),
   getPublishedContentById: vi.fn(),
   getPublishedEventById: vi.fn(),
+  getPublishedDocumentById: vi.fn(),
+  incrementDocumentDownload: vi.fn(async () => 18),
   createEventRegistration: vi.fn(async () => 51),
   listEventRegistrations: vi.fn(async () => []),
   markContactMessageRead: vi.fn(async () => undefined),
@@ -135,6 +137,20 @@ describe("content and contact procedures", () => {
 
     expect(result).toEqual({ id: 31 });
     expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ type: "document" }));
+  });
+
+  it("records a public document download and returns the updated count", async () => {
+    dbMocks.getPublishedDocumentById.mockResolvedValue({
+      id: 71,
+      type: "document",
+      imageUrl: "/manus-storage/governance-documents/governance-report.pdf",
+    });
+    const caller = appRouter.createCaller(publicContext);
+
+    const result = await caller.content.recordDocumentDownload({ id: 71 });
+
+    expect(result).toEqual({ downloadCount: 18 });
+    expect(dbMocks.incrementDocumentDownload).toHaveBeenCalledWith(71);
   });
 
   it("accepts a stored image path when publishing content", async () => {

@@ -19,6 +19,8 @@ const contentInput = z.object({
   summary: z.string().trim().min(15).max(3000),
   body: z.string().trim().max(15_000).optional().or(z.literal("")),
   imageUrl: contentImageUrl.optional().or(z.literal("")),
+  documentCategory: z.enum(["governance", "annual_report"]).optional().nullable(),
+  documentYear: z.number().int().min(2000).max(2100).optional().nullable(),
   status: z.enum(["draft", "published"]),
   eventStartsAt: z.number().int().positive().optional().nullable(),
   eventLocation: z.string().trim().max(240).optional().or(z.literal("")),
@@ -124,9 +126,11 @@ export const appRouter = router({
       return {
         id: await db.createContentItem({
           ...input,
-          body: input.body || null,
-          imageUrl: input.imageUrl || null,
-          eventLocation: input.eventLocation || null,
+        body: input.body || null,
+        imageUrl: input.imageUrl || null,
+        documentCategory: input.type === "document" ? input.documentCategory ?? null : null,
+        documentYear: input.type === "document" ? input.documentYear ?? null : null,
+        eventLocation: input.eventLocation || null,
           eventStartsAt: input.eventStartsAt ? new Date(input.eventStartsAt) : null,
         }),
       };
@@ -137,6 +141,8 @@ export const appRouter = router({
         ...item,
         body: item.body || null,
         imageUrl: item.imageUrl || null,
+        documentCategory: item.type === "document" ? item.documentCategory ?? null : null,
+        documentYear: item.type === "document" ? item.documentYear ?? null : null,
         eventLocation: item.eventLocation || null,
         eventStartsAt: item.eventStartsAt ? new Date(item.eventStartsAt) : null,
       });
@@ -145,6 +151,12 @@ export const appRouter = router({
     delete: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
       await db.deleteContentItem(input.id);
       return { success: true } as const;
+    }),
+    recordDocumentDownload: publicProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+      const document = await db.getPublishedDocumentById(input.id);
+      if (!document?.imageUrl) throw new TRPCError({ code: "NOT_FOUND", message: "Document not found" });
+      const downloadCount = await db.incrementDocumentDownload(input.id);
+      return { downloadCount } as const;
     }),
   }),
   events: router({
