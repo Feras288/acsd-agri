@@ -486,6 +486,10 @@
   .mobile-route-entering {
     animation: mobile-route-enter 260ms cubic-bezier(0.23, 1, 0.32, 1) both;
   }
+
+  .mobile-route-skeleton {
+    animation: mobile-skeleton-enter 120ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -504,4 +508,9 @@
 @keyframes mobile-route-enter {
   from { opacity: 0; transform: translateY(0.8rem); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mobile-skeleton-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

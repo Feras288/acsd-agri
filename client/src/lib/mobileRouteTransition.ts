@@ -11,3 +11,7 @@ export function shouldInterceptMobileNavClick(event: {
 export function shouldReduceMobileMotion(mediaQueryMatches: boolean) {
   return mediaQueryMatches;
 }
+
+export function shouldShowMobileRouteSkeleton(phase: "idle" | "leaving" | "entering") {
+  return phase === "leaving";
+}
