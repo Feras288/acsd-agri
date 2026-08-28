@@ -35,9 +35,9 @@ export default function Home() {
       <SiteHeader />
 
       <main>
-        <section id="الرئيسية" className="grain-layer relative isolate overflow-hidden bg-[#f1efdF] pt-9 md:pt-14">
-          <div className="container relative z-10 grid items-stretch gap-8 pb-24 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:pb-28">
-            <div className="order-2 flex flex-col justify-center pb-4 lg:order-1 lg:pb-12">
+        <section id="الرئيسية" className="grain-layer relative isolate overflow-hidden bg-[#f1efdF] pt-7 sm:pt-9 md:pt-14">
+          <div className="container relative z-10 grid items-stretch gap-6 pb-18 sm:gap-8 sm:pb-24 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:pb-28">
+            <div className="order-2 flex flex-col justify-center pb-2 sm:pb-4 lg:order-1 lg:pb-12">
               <div className="reveal-up">
                 <p className="section-label">نزرع الأثر المشترك</p>
                 <h1 className="display-font mt-5 max-w-2xl text-[2.3rem] font-extrabold leading-[1.4] tracking-tight text-[#155029] sm:text-5xl lg:text-[3.7rem] lg:leading-[1.35]">
@@ -48,20 +48,20 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="reveal-up-delay mt-8 flex flex-wrap items-center gap-3">
+              <div className="reveal-up-delay mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:items-center">
                 <a href="/about">
-                  <Button className="h-12 rounded-full bg-[#165B2A] px-6 font-bold text-white shadow-[0_12px_25px_rgba(22,91,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#10461f] active:scale-[0.97]">
+                  <Button className="h-12 w-full rounded-full bg-[#165B2A] px-6 font-bold text-white shadow-[0_12px_25px_rgba(22,91,42,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#10461f] active:scale-[0.97] sm:w-auto">
                     اكتشف رسالتنا
                     <ChevronLeft className="mr-1 h-4 w-4" />
                   </Button>
                 </a>
-                <a href="#أنشطتنا" className="inline-flex h-12 items-center gap-2 rounded-full border border-[#bb913c] bg-white/70 px-5 text-sm font-bold text-[#775619] transition-all duration-200 hover:border-[#8c6419] hover:bg-white active:scale-[0.97]">
+                <a href="#أنشطتنا" className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-[#bb913c] bg-white/70 px-5 text-sm font-bold text-[#775619] transition-all duration-200 hover:border-[#8c6419] hover:bg-white active:scale-[0.97] sm:w-auto">
                   استعرض الأنشطة
                   <ArrowLeft className="h-4 w-4" />
                 </a>
               </div>
 
-              <div className="mt-11 grid max-w-xl grid-cols-3 border-t border-[#d9c995] pt-5">
+              <div className="mt-8 grid max-w-xl grid-cols-3 border-t border-[#d9c995] pt-5 sm:mt-11">
                 {focusAreas.map(({ label, Icon }) => (
                   <div key={label} className="flex flex-col gap-2 border-l border-[#d9c995] px-3 last:border-l-0 first:pr-0">
                     <Icon className="h-5 w-5 text-[#b17816]" strokeWidth={1.8} />
@@ -71,7 +71,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative order-1 min-h-[25rem] overflow-hidden rounded-bl-[5.5rem] rounded-tr-[5.5rem] border-[9px] border-white shadow-[0_28px_70px_rgba(24,76,46,0.17)] lg:order-2 lg:min-h-[38rem]">
+            <div className="relative order-1 min-h-[21.5rem] overflow-hidden rounded-bl-[4rem] rounded-tr-[4rem] border-[7px] border-white shadow-[0_28px_70px_rgba(24,76,46,0.17)] sm:min-h-[25rem] sm:rounded-bl-[5.5rem] sm:rounded-tr-[5.5rem] sm:border-[9px] lg:order-2 lg:min-h-[38rem]">
               <img src="/manus-storage/acsd-hero-terraced-fields_8e549636.jpg" alt="حقول زراعية متدرجة ومسار مائي" className="warm-documentary absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#123e26]/50 via-transparent to-[#f7e7b8]/20" />
               <div className="absolute right-5 top-5 flex items-center gap-2 rounded-full border border-white/50 bg-[#fbf8ed]/90 px-3 py-2 shadow-lg backdrop-blur">
@@ -137,7 +137,7 @@ export default function Home() {
 
               <div className="activity-route flex flex-col gap-5 py-2">
                 {activities.slice(1).map(({ title, description, Icon, image }) => (
-                  <article key={title} className="activity-step group grid min-h-[14rem] grid-cols-[0.83fr_1.17fr] overflow-hidden border-b border-[#c6d7bd] bg-[#fbf8ed]/35 pb-5 last:border-b-0 last:pb-0">
+                  <article key={title} className="activity-step group grid min-h-[12rem] grid-cols-[0.83fr_1.17fr] overflow-hidden border-b border-[#c6d7bd] bg-[#fbf8ed]/35 pb-5 last:border-b-0 last:pb-0 sm:min-h-[14rem]">
                     <div className="relative mr-3 overflow-hidden rounded-bl-[2rem] rounded-tr-[2rem] shadow-[0_10px_23px_rgba(22,91,42,0.09)]">
                       <img src={image} alt="" className="warm-documentary h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       <div className="image-wash" />

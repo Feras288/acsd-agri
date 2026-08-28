@@ -412,3 +412,63 @@
   from { opacity: 0; transform: scale(0.72); }
   to { opacity: 1; transform: scale(1); }
 }
+
+@media (max-width: 639px) {
+  html { overflow-x: clip; }
+
+  body { min-width: 20rem; }
+
+  .site-shell,
+  .survey-shell {
+    padding-bottom: 5.9rem;
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: max(0.38rem, env(safe-area-inset-bottom));
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .section-label {
+    gap: 0.42rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+
+  .section-label::before { width: 1.8rem; }
+
+  .route-map::before {
+    top: 3.5rem;
+    right: -0.35rem;
+    width: 5.6rem;
+    height: calc(100% - 7rem);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    opacity: 0.52;
+  }
+
+  .route-map::after {
+    bottom: 1.5rem;
+    left: -3rem;
+    width: 12rem;
+    height: 3.5rem;
+    border-bottom-width: 1px;
+    opacity: 0.7;
+  }
+
+  .hero-field-lines {
+    bottom: -0.45rem;
+    height: 5rem;
+    opacity: 0.78;
+  }
+
+  .contact-form-frame::after {
+    inset: auto -5rem -6rem auto;
+    height: 11rem;
+    width: 11rem;
+  }
+}

@@ -30,7 +30,7 @@ const acceptedTypes = new Set<PreparedAttachment["type"]>([
 ]);
 const maxAttachmentSize = 5 * 1024 * 1024;
 const formatSize = (size: number) => `${Math.ceil(size / 1024)} كيلوبايت`;
-const inputClassName = "h-12 rounded-2xl border border-white/15 bg-[#0d4626]/55 px-4 text-sm font-medium text-white shadow-inner shadow-black/10 outline-none transition-all duration-200 placeholder:text-white/35 hover:border-white/30 focus:border-[#f2cd78] focus:bg-[#0d4626] focus:ring-4 focus:ring-[#e6bd67]/10";
+const inputClassName = "h-12 rounded-2xl border border-white/15 bg-[#0d4626]/55 px-4 text-base font-medium text-white shadow-inner shadow-black/10 outline-none transition-all duration-200 placeholder:text-white/35 hover:border-white/30 focus:border-[#f2cd78] focus:bg-[#0d4626] focus:ring-4 focus:ring-[#e6bd67]/10 sm:text-sm";
 
 const readAsBase64 = (file: File) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader();

@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import NewsDetail from "./pages/NewsDetail";
 import SurveyAdminPage from "./pages/SurveyAdminPage";
 import SurveyPage from "./pages/SurveyPage";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 /**
  * توجه «الأثر الأخضر»: تطبيق عربي مؤسسي بهوية زراعية دافئة وواضحة.
@@ -50,6 +51,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <MobileBottomNav />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
