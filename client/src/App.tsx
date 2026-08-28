@@ -10,6 +10,8 @@ import ContactPage from "./pages/ContactPage";
 import GovernancePage from "./pages/GovernancePage";
 import Home from "./pages/Home";
 import NewsDetail from "./pages/NewsDetail";
+import SurveyAdminPage from "./pages/SurveyAdminPage";
+import SurveyPage from "./pages/SurveyPage";
 
 /**
  * توجه «الأثر الأخضر»: تطبيق عربي مؤسسي بهوية زراعية دافئة وواضحة.
@@ -23,6 +25,8 @@ function Router() {
       <Route path={"/contact"} component={ContactPage} />
       <Route path={"/governance"} component={GovernancePage} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin/surveys"} component={SurveyAdminPage} />
+      <Route path={"/survey"} component={SurveyPage} />
       <Route path={"/news/:id"} component={NewsDetail} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

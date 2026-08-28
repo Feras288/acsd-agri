@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   contactAttachments,
@@ -6,11 +6,16 @@ import {
   contactMessages,
   contentItems,
   eventRegistrations,
+  surveyAnswers,
+  surveyQuestions,
+  surveyResponses,
+  surveys,
   InsertContactMessage,
   InsertContactAttachment,
   InsertContactReply,
   InsertContentItem,
   InsertEventRegistration,
+  InsertSurvey,
   InsertUser,
   users,
 } from "../drizzle/schema";
@@ -236,4 +241,86 @@ export async function listContactAttachments() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(contactAttachments).orderBy(desc(contactAttachments.uploadedAt));
+}
+
+export type SurveyQuestionDraft = {
+  prompt: string;
+  helpText: string | null;
+  type: "single_choice" | "rating" | "text";
+  optionsJson: string | null;
+  isRequired: "yes" | "no";
+  position: number;
+};
+
+export async function listSurveysForAdmin() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(surveys).orderBy(desc(surveys.updatedAt));
+}
+
+export async function getPublishedSurvey() {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [survey] = await db.select().from(surveys).where(eq(surveys.status, "published")).orderBy(desc(surveys.updatedAt)).limit(1);
+  if (!survey) return undefined;
+  const questions = await db.select().from(surveyQuestions).where(eq(surveyQuestions.surveyId, survey.id)).orderBy(asc(surveyQuestions.position));
+  return { survey, questions };
+}
+
+export async function getSurveyForAdmin(surveyId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const [survey] = await db.select().from(surveys).where(eq(surveys.id, surveyId)).limit(1);
+  if (!survey) return undefined;
+  const questions = await db.select().from(surveyQuestions).where(eq(surveyQuestions.surveyId, surveyId)).orderBy(asc(surveyQuestions.position));
+  return { survey, questions };
+}
+
+export async function getSurveyResults(surveyId: number) {
+  const db = await getDb();
+  if (!db) return { responses: [], answers: [] };
+  const responses = await db.select().from(surveyResponses).where(eq(surveyResponses.surveyId, surveyId)).orderBy(desc(surveyResponses.submittedAt));
+  if (!responses.length) return { responses, answers: [] };
+  const answers = await db.select().from(surveyAnswers).where(inArray(surveyAnswers.responseId, responses.map(response => response.id))).orderBy(desc(surveyAnswers.id));
+  return { responses, answers };
+}
+
+export async function createSurveyWithQuestions(survey: Pick<InsertSurvey, "title" | "description" | "status">, questions: SurveyQuestionDraft[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    if (survey.status === "published") await tx.update(surveys).set({ status: "draft" }).where(eq(surveys.status, "published"));
+    const result = await tx.insert(surveys).values(survey);
+    const surveyId = Number(result[0].insertId);
+    if (questions.length) await tx.insert(surveyQuestions).values(questions.map(question => ({ ...question, surveyId })));
+    return surveyId;
+  });
+}
+
+export async function updateSurveyWithQuestions(surveyId: number, survey: Pick<InsertSurvey, "title" | "description" | "status">, questions: SurveyQuestionDraft[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    if (survey.status === "published") await tx.update(surveys).set({ status: "draft" }).where(eq(surveys.status, "published"));
+    await tx.update(surveys).set(survey).where(eq(surveys.id, surveyId));
+    await tx.delete(surveyQuestions).where(eq(surveyQuestions.surveyId, surveyId));
+    if (questions.length) await tx.insert(surveyQuestions).values(questions.map(question => ({ ...question, surveyId })));
+  });
+}
+
+export async function deleteSurvey(surveyId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.delete(surveys).where(eq(surveys.id, surveyId));
+}
+
+export async function createSurveyResponse(surveyId: number, respondentTokenHash: string, answers: Array<{ questionId: number; value: string }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  return db.transaction(async tx => {
+    const result = await tx.insert(surveyResponses).values({ surveyId, respondentTokenHash });
+    const responseId = Number(result[0].insertId);
+    if (answers.length) await tx.insert(surveyAnswers).values(answers.map(answer => ({ ...answer, responseId })));
+    return responseId;
+  });
 }

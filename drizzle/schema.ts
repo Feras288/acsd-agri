@@ -91,6 +91,48 @@ export const eventRegistrations = mysqlTable("eventRegistrations", {
   oneRegistrationPerEmail: uniqueIndex("event_registration_unique").on(table.eventId, table.attendeeEmail),
 }));
 
+/** استبيانات الجمعية القابلة للنشر، ولا يظهر للزوار إلا الاستبيان المنشور. */
+export const surveys = mysqlTable("surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 240 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** أسئلة الاستبيان المرتبة، مع خيارات محفوظة بصيغة JSON عند الحاجة. */
+export const surveyQuestions = mysqlTable("surveyQuestions", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("surveyId").notNull().references(() => surveys.id, { onDelete: "cascade" }),
+  prompt: text("prompt").notNull(),
+  helpText: text("helpText"),
+  type: mysqlEnum("type", ["single_choice", "rating", "text"]).notNull(),
+  optionsJson: text("optionsJson"),
+  isRequired: mysqlEnum("isRequired", ["yes", "no"]).default("yes").notNull(),
+  position: int("position").notNull(),
+});
+
+/** استجابة واحدة لكل جهاز لكل استبيان، دون جمع اسم أو بريد المستفيد افتراضيًا. */
+export const surveyResponses = mysqlTable("surveyResponses", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("surveyId").notNull().references(() => surveys.id, { onDelete: "cascade" }),
+  respondentTokenHash: varchar("respondentTokenHash", { length: 64 }).notNull(),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+}, table => ({
+  oneResponsePerDevice: uniqueIndex("survey_response_per_device_unique").on(table.surveyId, table.respondentTokenHash),
+}));
+
+/** إجابة كل سؤال؛ تحفظ كنص موحد لتخدم التقييم والاختيارات والنص الحر. */
+export const surveyAnswers = mysqlTable("surveyAnswers", {
+  id: int("id").autoincrement().primaryKey(),
+  responseId: int("responseId").notNull().references(() => surveyResponses.id, { onDelete: "cascade" }),
+  questionId: int("questionId").notNull().references(() => surveyQuestions.id, { onDelete: "cascade" }),
+  value: text("value").notNull(),
+}, table => ({
+  oneAnswerPerQuestion: uniqueIndex("survey_answer_per_question_unique").on(table.responseId, table.questionId),
+}));
+
 export type ContentItem = typeof contentItems.$inferSelect;
 export type InsertContentItem = typeof contentItems.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
@@ -101,3 +143,11 @@ export type ContactAttachment = typeof contactAttachments.$inferSelect;
 export type InsertContactAttachment = typeof contactAttachments.$inferInsert;
 export type EventRegistration = typeof eventRegistrations.$inferSelect;
 export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
+export type Survey = typeof surveys.$inferSelect;
+export type InsertSurvey = typeof surveys.$inferInsert;
+export type SurveyQuestion = typeof surveyQuestions.$inferSelect;
+export type InsertSurveyQuestion = typeof surveyQuestions.$inferInsert;
+export type SurveyResponse = typeof surveyResponses.$inferSelect;
+export type InsertSurveyResponse = typeof surveyResponses.$inferInsert;
+export type SurveyAnswer = typeof surveyAnswers.$inferSelect;
+export type InsertSurveyAnswer = typeof surveyAnswers.$inferInsert;

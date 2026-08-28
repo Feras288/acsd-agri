@@ -150,7 +150,7 @@ function DashboardContent() {
     <div className="mx-auto max-w-6xl space-y-7" dir="rtl">
       <div className="flex flex-col justify-between gap-5 rounded-bl-[2.6rem] rounded-tr-[2.6rem] bg-[#155029] px-6 py-7 text-white shadow-[0_14px_30px_rgba(22,91,42,0.15)] sm:flex-row sm:items-center sm:px-8">
         <div><p className="text-xs font-bold tracking-[0.14em] text-[#f2cd78]">مركز إدارة الجمعية</p><h1 className="display-font mt-2 text-2xl font-extrabold">المحتوى والرسائل</h1><p className="mt-2 text-sm text-white/75">أضف ما يستجد، نظّم الفعاليات، وتابع رسائل المستفيدين.</p></div>
-        <a href="/" className="inline-flex items-center gap-2 self-start text-sm font-bold text-[#f2cd78] hover:text-white"><ChevronRight className="h-4 w-4" />عرض الموقع</a>
+        <div className="flex flex-wrap items-center gap-4 self-start text-sm font-bold text-[#f2cd78]"><a href="/admin/surveys" className="hover:text-white">إدارة الاستبيانات</a><a href="/" className="inline-flex items-center gap-2 hover:text-white"><ChevronRight className="h-4 w-4" />عرض الموقع</a></div>
       </div>
 
       <div className="flex gap-2 border-b border-[#d9c995] pb-3">
