@@ -13,6 +13,7 @@ import NewsDetail from "./pages/NewsDetail";
 import SurveyAdminPage from "./pages/SurveyAdminPage";
 import SurveyPage from "./pages/SurveyPage";
 import MobileBottomNav from "./components/MobileBottomNav";
+import { MobileRouteFrame, MobileRouteTransitionProvider } from "./components/MobileRouteTransition";
 
 /**
  * توجه «الأثر الأخضر»: تطبيق عربي مؤسسي بهوية زراعية دافئة وواضحة.
@@ -20,19 +21,21 @@ import MobileBottomNav from "./components/MobileBottomNav";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/about"} component={AboutPage} />
-      <Route path={"/contact"} component={ContactPage} />
-      <Route path={"/governance"} component={GovernancePage} />
-      <Route path={"/admin"} component={AdminDashboard} />
-      <Route path={"/admin/surveys"} component={SurveyAdminPage} />
-      <Route path={"/survey"} component={SurveyPage} />
-      <Route path={"/news/:id"} component={NewsDetail} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <MobileRouteFrame>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/about"} component={AboutPage} />
+        <Route path={"/contact"} component={ContactPage} />
+        <Route path={"/governance"} component={GovernancePage} />
+        <Route path={"/admin"} component={AdminDashboard} />
+        <Route path={"/admin/surveys"} component={SurveyAdminPage} />
+        <Route path={"/survey"} component={SurveyPage} />
+        <Route path={"/news/:id"} component={NewsDetail} />
+        <Route path={"/404"} component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </MobileRouteFrame>
   );
 }
 
@@ -49,9 +52,11 @@ function App() {
         // switchable
       >
         <TooltipProvider>
-          <Toaster />
-          <Router />
-          <MobileBottomNav />
+          <MobileRouteTransitionProvider>
+            <Toaster />
+            <Router />
+            <MobileBottomNav />
+          </MobileRouteTransitionProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
