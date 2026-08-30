@@ -3,7 +3,7 @@
  */
 import { Progress } from "@/components/ui/progress";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Award, CalendarDays, CheckCircle2, LoaderCircle, Sparkles } from "lucide-react";
+import { Award, CalendarDays, CheckCircle2, LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type AchievementItem = {
@@ -72,7 +72,7 @@ export default function Achievements() {
           </article>
         </div> : <div className="relative mt-11 overflow-hidden rounded-bl-[3rem] rounded-tr-[3rem] border border-dashed border-[#e6bd67]/40 bg-white/5 p-7 sm:p-10">
           <div className="absolute -bottom-20 -left-16 h-56 w-56 rounded-full border-[20px] border-[#1a7cab]/15" aria-hidden="true" />
-          <div className="relative z-10 max-w-2xl"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#e6bd67] text-[#155029]"><CheckCircle2 className="h-6 w-6" /></span><h3 className="display-font mt-6 text-2xl font-extrabold">الإنجازات المعتمدة ستظهر هنا.</h3><p className="mt-3 text-sm leading-7 text-white/75">تُحدّث هذه المساحة من لوحة إدارة الجمعية عند اعتماد أي محطة أثر أو نتيجة ميدانية، حتى تبقى المعلومات دقيقة وقابلة للتوثيق.</p><a href="/admin" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f2cd78] transition-colors hover:text-white">إدارة الإنجازات <ArrowLeft className="h-4 w-4" /></a></div>
+          <div className="relative z-10 max-w-2xl"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#e6bd67] text-[#155029]"><CheckCircle2 className="h-6 w-6" /></span><h3 className="display-font mt-6 text-2xl font-extrabold">الإنجازات المعتمدة ستظهر هنا.</h3><p className="mt-3 text-sm leading-7 text-white/75">تُحدّث هذه المساحة عند اعتماد أي محطة أثر أو نتيجة ميدانية، حتى تبقى المعلومات دقيقة وقابلة للتوثيق.</p></div>
         </div>}
       </div>
     </section>

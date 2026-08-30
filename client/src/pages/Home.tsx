@@ -82,7 +82,6 @@ export default function Home() {
                 <span className="display-font block text-base font-bold">التنمية تبدأ من جذورٍ قوية</span>
                 <span className="mt-1 block text-xs text-white/80">ونقودها بشراكة تؤمن بالمستقبل.</span>
               </div>
-              <div className="hero-field-lines drift-lines" />
             </div>
           </div>
         </section>
@@ -178,7 +177,7 @@ export default function Home() {
         <Achievements />
         <UpcomingEvents />
         <LatestUpdates />
-        <section id="تواصل" className="bg-[#123f25] py-16 text-white lg:py-20"><div className="container flex flex-col gap-7 md:flex-row md:items-center md:justify-between"><div><p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">مساحة تعاون مباشرة</p><h2 className="display-font mt-4 text-2xl font-extrabold sm:text-3xl">لنبنِ الأثر معًا، عبر صفحة تواصل مخصصة.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">أرسل استفسارك أو مقترحك أو طلب الشراكة مع المرفقات، وتابع فريق الجمعية الرسالة من لوحة الإدارة.</p></div><a href="/contact" className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#e6bd67] px-6 text-sm font-bold text-[#155029] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f2cd78] active:scale-[0.97]">افتح صفحة اتصل بنا <ArrowLeft className="mr-2 h-4 w-4" /></a></div></section>
+        <section id="تواصل" className="bg-[#123f25] py-16 text-white lg:py-20"><div className="container flex flex-col gap-7 md:flex-row md:items-center md:justify-between"><div><p className="section-label !text-[#e6bd67] before:!bg-[#e6bd67]">مساحة تعاون مباشرة</p><h2 className="display-font mt-4 text-2xl font-extrabold sm:text-3xl">لنبنِ الأثر معًا، عبر صفحة تواصل مخصصة.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/75">أرسل استفسارك أو مقترحك أو طلب الشراكة مع المرفقات، وتابع فريق الجمعية الرسالة من لوحة الإدارة.</p></div><a href="/contact" className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#e6bd67] px-6 text-sm font-bold text-[#155029] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f2cd78] active:scale-[0.97]">اتصل بنا <ArrowLeft className="mr-2 h-4 w-4" /></a></div></section>
       </main>
 
       <SiteFooter />
