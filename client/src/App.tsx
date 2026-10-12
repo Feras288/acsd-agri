@@ -12,14 +12,15 @@ import Home from "./pages/Home";
 import NewsDetail from "./pages/NewsDetail";
 import SurveyAdminPage from "./pages/SurveyAdminPage";
 import SurveyPage from "./pages/SurveyPage";
+import AdminLoginPage from "./AdminLoginPage";
 import MobileBottomNav from "./components/MobileBottomNav";
 import { MobileRouteFrame, MobileRouteTransitionProvider } from "./components/MobileRouteTransition";
 
 /**
  * توجه «الأثر الأخضر»: تطبيق عربي مؤسسي بهوية زراعية دافئة وواضحة.
+ * لوحة الإدارة محميّة بصفحة دخول منفصلة على /admin/login.
  */
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <MobileRouteFrame>
       <Switch>
@@ -27,6 +28,7 @@ function Router() {
         <Route path={"/about"} component={AboutPage} />
         <Route path={"/contact"} component={ContactPage} />
         <Route path={"/governance"} component={GovernancePage} />
+        <Route path={"/admin/login"} component={AdminLoginPage} />
         <Route path={"/admin"} component={AdminDashboard} />
         <Route path={"/admin/surveys"} component={SurveyAdminPage} />
         <Route path={"/survey"} component={SurveyPage} />
@@ -38,11 +40,6 @@ function Router() {
     </MobileRouteFrame>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (

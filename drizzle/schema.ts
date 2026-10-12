@@ -1,22 +1,14 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
+ * جدول المستخدمين المحلي. يقتصر الدور على admin لأنه العضوية الوحيدة
+ * في لوحة التحكم.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  username: varchar("username", { length: 64 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  role: mysqlEnum("role", ["admin"]).default("admin").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -67,7 +59,7 @@ export const contactReplies = mysqlTable("contactReplies", {
   sentAt: timestamp("sentAt").defaultNow().notNull(),
 });
 
-/** بيانات المرفقات؛ تُخزّن الملفات في التخزين الآمن ويُحفظ هنا مرجعها فقط. */
+/** بيانات المرفقات؛ تُخزّن الملفات في uploads/ ويُحفظ هنا مرجعها فقط. */
 export const contactAttachments = mysqlTable("contactAttachments", {
   id: int("id").autoincrement().primaryKey(),
   messageId: int("messageId").notNull().references(() => contactMessages.id, { onDelete: "cascade" }),

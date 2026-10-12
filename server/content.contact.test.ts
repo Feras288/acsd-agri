@@ -30,7 +30,7 @@ const emailMocks = vi.hoisted(() => ({
 }));
 
 const storageMocks = vi.hoisted(() => ({
-  storagePut: vi.fn(async () => ({ key: "contact-messages/42/verification.pdf", url: "/manus-storage/contact-messages/42/verification.pdf" })),
+  storagePut: vi.fn(async () => ({ key: "contact-messages/42/verification.pdf", url: "/uploads/contact-messages/42/verification.pdf" })),
 }));
 
 vi.mock("./db", () => dbMocks);
@@ -41,17 +41,7 @@ import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
 const administratorContext = {
-  user: {
-    id: 1,
-    openId: "association-admin",
-    email: "info@acsd.sa",
-    name: "مدير الجمعية",
-    loginMethod: "manus",
-    role: "admin",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    lastSignedIn: new Date(),
-  },
+  user: { id: 1, username: "admin", role: "admin" },
   req: { protocol: "https", headers: {} },
   res: { clearCookie: vi.fn() },
 } as unknown as TrpcContext;
@@ -106,8 +96,8 @@ describe("content and contact procedures", () => {
       base64: "iVBORw0KGgo=",
     });
 
-    expect(result).toEqual({ url: "/manus-storage/contact-messages/42/verification.pdf", fileName: "field-photo.png" });
-    expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^content-images\/.+-field-photo\.png$/), expect.any(Buffer), "image/png");
+    expect(result).toEqual({ url: "/uploads/contact-messages/42/verification.pdf", fileName: "field-photo.png" });
+    expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^images\/.+-field-photo\.png$/), expect.any(Buffer), "image/png");
   });
 
   it("allows an administrator to upload a validated governance document", async () => {
@@ -119,7 +109,7 @@ describe("content and contact procedures", () => {
       base64: "JVBERi0=",
     });
 
-    expect(result).toEqual({ url: "/manus-storage/contact-messages/42/verification.pdf", fileName: "governance-report.pdf" });
+    expect(result).toEqual({ url: "/uploads/contact-messages/42/verification.pdf", fileName: "governance-report.pdf" });
     expect(storageMocks.storagePut).toHaveBeenCalledWith(expect.stringMatching(/^governance-documents\/.+-governance-report\.pdf$/), expect.any(Buffer), "application/pdf");
   });
 
@@ -129,7 +119,7 @@ describe("content and contact procedures", () => {
       type: "document",
       title: "تقرير الحوكمة السنوي",
       summary: "وثيقة معتمدة تشرح إطار الحوكمة ومسار الإفصاح المؤسسي للجمعية.",
-      imageUrl: "/manus-storage/governance-documents/governance-report.pdf",
+      imageUrl: "/uploads/governance-documents/governance-report.pdf",
       status: "published",
       eventStartsAt: null,
       eventLocation: "",
@@ -143,7 +133,7 @@ describe("content and contact procedures", () => {
     dbMocks.getPublishedDocumentById.mockResolvedValue({
       id: 71,
       type: "document",
-      imageUrl: "/manus-storage/governance-documents/governance-report.pdf",
+      imageUrl: "/uploads/governance-documents/governance-report.pdf",
     });
     const caller = appRouter.createCaller(publicContext);
 
@@ -159,14 +149,14 @@ describe("content and contact procedures", () => {
       type: "news",
       title: "خبر مصور من لوحة الجمعية",
       summary: "يختبر هذا الخبر حفظ مسار صورة مرفوعة من لوحة الإدارة ضمن المحتوى المنشور.",
-      imageUrl: "/manus-storage/content-images/field-photo.png",
+      imageUrl: "/uploads/images/field-photo.png",
       status: "published",
       eventStartsAt: null,
       eventLocation: "",
     });
 
     expect(result).toEqual({ id: 31 });
-    expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: "/manus-storage/content-images/field-photo.png" }));
+    expect(dbMocks.createContentItem).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: "/uploads/images/field-photo.png" }));
   });
 
   it("returns a published news item with its full body for the public detail page", async () => {
@@ -176,7 +166,7 @@ describe("content and contact procedures", () => {
       title: "خبر الجمعية التفصيلي",
       summary: "ملخص موجز للخبر المنشور في واجهة الجمعية.",
       body: "الفقرة الأولى من نص الخبر الكامل.\n\nالفقرة الثانية من نص الخبر الكامل.",
-      imageUrl: "/manus-storage/content-images/news.jpg",
+      imageUrl: "/uploads/images/news.jpg",
       status: "published",
       publishedAt: new Date(),
       eventStartsAt: null,
@@ -276,7 +266,7 @@ describe("content and contact procedures", () => {
     expect(dbMocks.createContactAttachment).toHaveBeenCalledWith(expect.objectContaining({
       messageId: 42,
       fileName: "verification.pdf",
-      fileUrl: "/manus-storage/contact-messages/42/verification.pdf",
+      fileUrl: "/uploads/contact-messages/42/verification.pdf",
       mimeType: "application/pdf",
       fileSize: 5,
     }));

@@ -1,97 +1,61 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
-
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createHash, randomUUID } from "node:crypto";
 import { ENV } from "./_core/env";
 
-function getForgeConfig() {
-  const forgeUrl = ENV.forgeApiUrl;
-  const forgeKey = ENV.forgeApiKey;
-
-  if (!forgeUrl || !forgeKey) {
-    throw new Error(
-      "Storage config missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
-    );
-  }
-
-  return { forgeUrl: forgeUrl.replace(/\/+$/, ""), forgeKey };
+function ensureDir(dir: string) {
+  return fs.mkdir(dir, { recursive: true });
 }
 
-function normalizeKey(relKey: string): string {
-  return relKey.replace(/^\/+/, "");
+function joinUploads(relKey: string): string {
+  const cleaned = relKey.replace(/^\/+/, "");
+  if (cleaned.includes("..")) {
+    throw new Error("Invalid storage key: path traversal detected");
+  }
+  return path.join(ENV.uploadsDir, cleaned);
 }
 
 function appendHashSuffix(relKey: string): string {
-  const hash = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+  const hash = randomUUID().replace(/-/g, "").slice(0, 8);
   const lastDot = relKey.lastIndexOf(".");
   if (lastDot === -1) return `${relKey}_${hash}`;
   return `${relKey.slice(0, lastDot)}_${hash}${relKey.slice(lastDot)}`;
 }
 
+/**
+ * يكتب ملفاً إلى مجلد uploads/ ويعيد المسار العلني /uploads/... الذي
+ * يقدّمه الخادم عبر express.static.
+ */
 export async function storagePut(
   relKey: string,
   data: Buffer | Uint8Array | string,
-  contentType = "application/octet-stream",
-): Promise<{ key: string; url: string }> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
-  const key = appendHashSuffix(normalizeKey(relKey));
+  contentType = "application/octet-stream"
+): Promise<{ key: string; url: string; checksum: string }> {
+  const key = appendHashSuffix(relKey.replace(/^\/+/, ""));
+  const target = joinUploads(key);
+  await ensureDir(path.dirname(target));
 
-  // 1. Get presigned PUT URL from Forge
-  const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
-  presignUrl.searchParams.set("path", key);
+  const buffer = typeof data === "string" ? Buffer.from(data, "utf-8") : Buffer.from(data);
+  await fs.writeFile(target, buffer);
 
-  const presignResp = await fetch(presignUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
-  });
-
-  if (!presignResp.ok) {
-    const msg = await presignResp.text().catch(() => presignResp.statusText);
-    throw new Error(`Storage presign failed (${presignResp.status}): ${msg}`);
-  }
-
-  const { url: s3Url } = (await presignResp.json()) as { url: string };
-  if (!s3Url) throw new Error("Forge returned empty presign URL");
-
-  // 2. PUT file directly to S3
-  const blob =
-    typeof data === "string"
-      ? new Blob([data], { type: contentType })
-      : new Blob([data as any], { type: contentType });
-
-  const uploadResp = await fetch(s3Url, {
-    method: "PUT",
-    headers: { "Content-Type": contentType },
-    body: blob,
-  });
-
-  if (!uploadResp.ok) {
-    throw new Error(`Storage upload to S3 failed (${uploadResp.status})`);
-  }
-
-  return { key, url: `/manus-storage/${key}` };
+  const checksum = createHash("sha256").update(buffer).digest("hex");
+  return { key, url: `${ENV.publicUploadsPath}/${key}`, checksum };
 }
 
-export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
-  const key = normalizeKey(relKey);
-  return { key, url: `/manus-storage/${key}` };
+export async function storageDelete(relKey: string): Promise<void> {
+  const target = joinUploads(relKey);
+  try {
+    await fs.unlink(target);
+  } catch (error: unknown) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code !== "ENOENT") throw err;
+  }
 }
 
-export async function storageGetSignedUrl(relKey: string): Promise<string> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
-  const key = normalizeKey(relKey);
-
-  const getUrl = new URL("v1/storage/presign/get", forgeUrl + "/");
-  getUrl.searchParams.set("path", key);
-
-  const resp = await fetch(getUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
-  });
-
-  if (!resp.ok) {
-    const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(`Storage signed URL failed (${resp.status}): ${msg}`);
-  }
-
-  const { url } = (await resp.json()) as { url: string };
-  return url;
+/**
+ * يبني رابطاً عاماً لملف موجود في uploads/. لا يتحقّق من وجود الملف.
+ */
+export function storageGetUrl(relKey: string): string {
+  const cleaned = relKey.replace(/^\/+/, "");
+  return `${ENV.publicUploadsPath}/${cleaned}`;
 }

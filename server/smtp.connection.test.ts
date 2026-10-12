@@ -7,7 +7,15 @@ const smtpUsername = process.env.SMTP_USERNAME;
 const smtpPassword = process.env.SMTP_PASSWORD;
 const smtpFrom = process.env.SMTP_FROM;
 
-describe("SMTP configuration", () => {
+const smtpConfigured =
+  Boolean(smtpHost) &&
+  Number.isInteger(smtpPort) &&
+  smtpPort > 0 &&
+  Boolean(smtpUsername) &&
+  Boolean(smtpPassword) &&
+  Boolean(smtpFrom);
+
+describe.skipIf(!smtpConfigured)("SMTP configuration", () => {
   it("contains complete credentials and authenticates with the configured SMTP host", async () => {
     expect(smtpHost, "SMTP_HOST is required").toBeTruthy();
     expect(Number.isInteger(smtpPort) && smtpPort > 0, "SMTP_PORT must be a positive integer").toBe(true);

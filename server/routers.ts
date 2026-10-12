@@ -8,10 +8,11 @@ import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { sendContactNotification, sendContactReply, sendEventRegistrationConfirmation } from "./email";
 import { storagePut } from "./storage";
+import { authenticateByCredentials } from "./auth";
 
 const contentImageUrl = z.union([
   z.string().url(),
-  z.string().regex(/^\/manus-storage\/[A-Za-z0-9._/-]+$/, "Invalid stored image path"),
+  z.string().regex(/^\/uploads\/[A-Za-z0-9._/-]+$/, "Invalid stored image path"),
 ]);
 
 const contentInput = z.object({
@@ -104,16 +105,37 @@ const hasMatchingDocumentSignature = (file: Buffer, mimeType: (typeof allowedDoc
 };
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      if (!opts.ctx.user) return null;
+      return {
+        id: opts.ctx.user.id,
+        username: opts.ctx.user.username,
+        role: opts.ctx.user.role,
+      };
+    }),
+    login: publicProcedure
+      .input(z.object({
+        username: z.string().trim().min(1).max(64),
+        password: z.string().min(1).max(255),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await authenticateByCredentials(input.username, input.password);
+        if (!result) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "INVALID_CREDENTIALS" });
+        }
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, result.token, {
+          ...cookieOptions,
+          maxAge: 365 * 24 * 60 * 60 * 1000,
+        });
+        return { success: true, user: result.principal } as const;
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
   content: router({
@@ -130,7 +152,7 @@ export const appRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid content image" });
       }
       const fileName = toSafeFileName(input.name);
-      const stored = await storagePut(`content-images/${crypto.randomUUID()}-${fileName}`, imageBuffer, input.type);
+      const stored = await storagePut(`images/${crypto.randomUUID()}-${fileName}`, imageBuffer, input.type);
       return { url: stored.url, fileName } as const;
     }),
     uploadDocument: adminProcedure.input(documentFileInput).mutation(async ({ input }) => {
@@ -146,11 +168,11 @@ export const appRouter = router({
       return {
         id: await db.createContentItem({
           ...input,
-        body: input.body || null,
-        imageUrl: input.imageUrl || null,
-        documentCategory: input.type === "document" ? input.documentCategory ?? null : null,
-        documentYear: input.type === "document" ? input.documentYear ?? null : null,
-        eventLocation: input.eventLocation || null,
+          body: input.body || null,
+          imageUrl: input.imageUrl || null,
+          documentCategory: input.type === "document" ? input.documentCategory ?? null : null,
+          documentYear: input.type === "document" ? input.documentYear ?? null : null,
+          eventLocation: input.eventLocation || null,
           eventStartsAt: input.eventStartsAt ? new Date(input.eventStartsAt) : null,
         }),
       };
@@ -174,7 +196,9 @@ export const appRouter = router({
     }),
     recordDocumentDownload: publicProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
       const document = await db.getPublishedDocumentById(input.id);
-      if (!document?.imageUrl) throw new TRPCError({ code: "NOT_FOUND", message: "Document not found" });
+      if (!document?.imageUrl || !document.imageUrl.startsWith("/uploads/")) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Document not found" });
+      }
       const downloadCount = await db.incrementDocumentDownload(input.id);
       return { downloadCount } as const;
     }),
