@@ -20,7 +20,7 @@ import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 
 const administratorContext = {
-  user: { id: 1, openId: "admin", email: "info@acsd.sa", name: "مدير", loginMethod: "manus", role: "admin", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() },
+  user: { id: 1, username: "admin", role: "admin" },
   req: { protocol: "https", headers: {} },
   res: { clearCookie: vi.fn() },
 } as unknown as TrpcContext;

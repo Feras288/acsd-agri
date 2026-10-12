@@ -51,14 +51,14 @@ export const activities = [
     description:
       "ورش ميدانية ومسارات تعلم عملية تساعد على اتخاذ قرارات زراعية أكثر وعيًا وكفاءة.",
     Icon: BookOpenCheck,
-    image: "/manus-storage/acsd-saudi-agricultural-training_10c43a6c.jpg",
+    image: "/uploads/images/acsd-saudi-agricultural-training.jpg",
   },
   {
     title: "مبادرات كفاءة المياه",
     description:
       "تشجيع التقنيات والممارسات التي تجعل كل قطرة موردًا منتجًا ضمن المنظومة الزراعية.",
     Icon: Droplets,
-    image: "/manus-storage/acsd-water-stewardship_ed239526.jpg",
+    image: "/uploads/images/acsd-water-stewardship.jpg",
   },
   {
     title: "التشجير وحماية الموارد",

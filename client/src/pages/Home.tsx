@@ -72,7 +72,7 @@ export default function Home() {
             </div>
 
             <div className="relative order-1 min-h-[21.5rem] overflow-hidden rounded-bl-[4rem] rounded-tr-[4rem] border-[7px] border-white shadow-[0_28px_70px_rgba(24,76,46,0.17)] sm:min-h-[25rem] sm:rounded-bl-[5.5rem] sm:rounded-tr-[5.5rem] sm:border-[9px] lg:order-2 lg:min-h-[38rem]">
-              <img src="/manus-storage/acsd-hero-terraced-fields_8e549636.jpg" alt="حقول زراعية متدرجة ومسار مائي" className="warm-documentary absolute inset-0 h-full w-full object-cover" />
+              <img src="/uploads/images/acsd-hero-terraced-fields.jpg" alt="حقول زراعية متدرجة ومسار مائي" className="warm-documentary absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#123e26]/50 via-transparent to-[#f7e7b8]/20" />
               <div className="absolute right-5 top-5 flex items-center gap-2 rounded-full border border-white/50 bg-[#fbf8ed]/90 px-3 py-2 shadow-lg backdrop-blur">
                 <img src={markUrl} alt="" className="h-6 w-6 object-contain" />

@@ -3,7 +3,7 @@ import { navigationItems } from "@/content/siteContent";
 import { ArrowLeft, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const logoUrl = "/manus-storage/acsd-official-logo_112cc60c.jpg";
+const logoUrl = "/uploads/images/acsd-official-logo.jpg";
 
 export default function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

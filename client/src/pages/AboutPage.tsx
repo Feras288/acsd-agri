@@ -3,8 +3,8 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { ArrowLeft, BadgeCheck, Building2, Handshake, Landmark, Leaf, ShieldCheck, Sprout, UsersRound } from "lucide-react";
 
-const logoUrl = "/manus-storage/acsd-official-logo_112cc60c.jpg";
-const chairPhotoUrl = "/manus-storage/acsd-board-chair_c9405dd9.jpeg";
+const logoUrl = "/uploads/images/acsd-official-logo.jpg";
+const chairPhotoUrl = "/uploads/images/acsd-board-chair.jpeg";
 
 const impactPaths = [
   { title: "مشاريع زراعية منتجة", description: "تطوير المشاريع الزراعية والبيوت المحمية بما يدعم تنوع الإنتاج وكفاءته.", Icon: Sprout },
